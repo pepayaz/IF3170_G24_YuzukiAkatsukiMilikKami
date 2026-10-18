@@ -121,6 +121,9 @@ class Package:
             target_position.z
         )
         
+    def is_outside(self):
+        return self.position == None
+        
 Axis = Literal["x", "y", "z", "-x", "-y", "-z"]
 
 @dataclass
