@@ -10,13 +10,13 @@ TEMPERATURE_INITIAL = 1000
 TEMPERATURE_DECREASE = 1
 
 def run_simulated_annealing(problem: Problem, iteration_amount: int):
-    results = {}
+    results = []
 
     for i in range(iteration_amount):
         init_state: ProblemState
         #build init state
 
-        results += search_simulated_annealing(init_state)
+        results.append(search_simulated_annealing(init_state))
 
     #output
 
@@ -30,8 +30,8 @@ def search_simulated_annealing(state: ProblemState):
     while (t > 0):
         successor = generate_random_successor(state)
 
-        state_value = evaluate_state(state)
-        successor_value = evaluate_state(successor)
+        state_value = evaluate_state(state)["state_value"]
+        successor_value = evaluate_state(successor)["state_value"]
 
         # Tentukan apakah successor akan dipilih
         choose_successor: bool = False
