@@ -2,16 +2,82 @@ from __future__ import annotations
 from ..models.problem import Problem, Truck
 from ..models.package import Package, Orientation, Position, Axis
 
+#Penalty Constant
+OVERLOAD_PENALTY = 10
 
-def evaluate_load(state: Problem):
+def evaluate_state(state: Problem):
+    penalty_weights = {
+        "violation": -100, #per violation
+        "overload": -10, #per weight
+        "overlap": -10, #per block
+        "out_of_bounds": -10, #per block
+        "unsupported": -10, #per object
+        "fragile_support": -10, #per object
+    }
+
+    overload_amount = evaluate_load(state)
+    overlap_amount = evaluate_overlap(state)
+    out_of_bounds_amount = evaluate_out_of_bounds(state)
+    unsupported_amount = evaluate_unsupported(state)
+    fragile_support_amount = evaluate_fragile_support(state)
+
+    is_valid = True
+    violation_amount = 0
+    for _, amount in violations.items():
+        if amount > 0:
+            violation_amount += 1
+            is_valid = False
+
+    violations = {
+        "violation": violation_amount,
+        "overload": overload_amount,
+        "overlap": overlap_amount,
+        "out_of_bounds": out_of_bounds_amount,
+        "unsupported": unsupported_amount,
+        "fragile_support": fragile_support_amount
+    }
+
+    total_penalty = 0
+
+    for violation_name in violations:
+        amount = violations[violation_name]
+        weight = penalty_weights[violation_name]
+
+        total_penalty += amount * weight
+
+    loaded_value = evaluate_value(state)
+    state_value = loaded_value - total_penalty
+
+    result = {
+        "is_valid": is_valid,
+        "value": loaded_value,
+        "penalty": total_penalty,
+        "state_value": state_value,
+        "violations": violations,
+    }
+
+    return result
+
+
+def evaluate_value(state: Problem):
     total_value = 0
-    total_weight = 0
 
     for package in state.packages:
         if package.is_outside():
             continue
 
         total_value += package.value
+
+    return total_value
+
+
+def evaluate_load(state: Problem):
+    total_weight = 0
+
+    for package in state.packages:
+        if package.is_outside():
+            continue
+
         total_weight += package.weight
 
     max_capacity = state.truck.max_capacity
