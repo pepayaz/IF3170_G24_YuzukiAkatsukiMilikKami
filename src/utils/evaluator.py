@@ -154,7 +154,7 @@ def evaluate_unsupported(state: ProblemState):
 
         dim_x, dim_y, dim_z = package.oriented_dimension
                 
-        bottom_z = min((package.position.z + dim_z), (package.position.z - dim_z))
+        bottom_z = min((package.position.z + dim_z), package.position.z)
         
         if bottom_z == 0:
             continue
@@ -175,7 +175,7 @@ def evaluate_unsupported(state: ProblemState):
                 continue
 
             support_dim_x, support_dim_y, support_dim_z = (support.oriented_dimension)
-            support_top_z = max((support.position.z + support_dim_z), (support.position.z - support_dim_z))
+            support_top_z = max((support.position.z + support_dim_z), support.position.z)
 
             if support_top_z != bottom_z:
                 continue
@@ -218,7 +218,7 @@ def evaluate_fragile_support(state: ProblemState):
         support_end_x = support_start_x + support_dim_x
         support_end_y = support_start_y + support_dim_y
 
-        support_top_z = max((support.position.z + support_dim_z), (support.position.z - support_dim_z))
+        support_top_z = max((support.position.z + support_dim_z), support.position.z)
 
         for package in packages:
             if package.id == support.id:
@@ -229,7 +229,7 @@ def evaluate_fragile_support(state: ProblemState):
             
             dim_x, dim_y, dim_z = (package.oriented_dimension)
 
-            bottom_z = min((package.position.z + dim_z), (package.position.z - dim_z))
+            bottom_z = min((package.position.z + dim_z), package.position.z)
 
             if bottom_z != support_top_z:
                 continue
