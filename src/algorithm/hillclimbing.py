@@ -177,7 +177,8 @@ def stochastic(state: ProblemState, max_iteration):
         if current_value < successor_value:
             current = successor
             current_value = successor_value
-            all_states.append(successor_value)
+
+        all_states.append(current_value)
         
         count_iteration += 1
 
