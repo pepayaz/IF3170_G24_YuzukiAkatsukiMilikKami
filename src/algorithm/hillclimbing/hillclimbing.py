@@ -58,14 +58,22 @@ def steepest_ascent(state: ProblemState) -> dict:
 
 def sideways_move(state: ProblemState, max_sideways_move):
     current: ProblemState = state
-    count_moves = 0
+    count_sideways = 0
+    iteration = 0
+    all_states = [evaluate_state(current)["state_value"]]
+    result = {}
 
     while True:
         all_successor = generate_all_successor(current)
         current_value = evaluate_state(current)["state_value"]
 
         if len(all_successor) == 0:
-            return current
+            result["current"] = current
+            result["all_states"] = all_states
+            result["iteration"] = iteration
+            result["sideways_move"] = count_sideways
+            result["max_sideways"] = max_sideways_move
+            return result
         
         best_neighbour: ProblemState = all_successor[0]
         best_value: int = evaluate_state(best_neighbour)["state_value"]
@@ -78,15 +86,27 @@ def sideways_move(state: ProblemState, max_sideways_move):
                 best_value = successor_value
 
         if best_value < current_value:
-            return current
+            result["current"] = current
+            result["all_states"] = all_states
+            result["iteration"] = iteration
+            result["sideways_move"] = count_sideways
+            result["max_sideways"] = max_sideways_move
+            return result
 
         if best_value == current_value:
-            if count_moves >= max_sideways_move:
-                return current
+            if count_sideways >= max_sideways_move:
+                result["current"] = current
+                result["all_states"] = all_states
+                result["iteration"] = iteration
+                result["sideways_move"] = count_sideways
+                result["max_sideways"] = max_sideways_move
+                return result
 
-            count_moves += 1
+            count_sideways += 1
 
         current = best_neighbour
+        all_states.append(best_value)
+        iteration += 1
 
 def random_restart(state: ProblemState, max_restart): 
     # TODO: Random initial state
@@ -104,6 +124,8 @@ def random_restart(state: ProblemState, max_restart):
 def stochastic(state: ProblemState, max_iteration):
     current: ProblemState = state
     count_iteration = 0
+    all_states = [evaluate_state(current)["state_value"]]
+    result = {}
 
     while count_iteration < max_iteration:
         successor = generate_random_successor(current)
@@ -114,6 +136,10 @@ def stochastic(state: ProblemState, max_iteration):
         if current_value < successor_value:
             current = successor
 
+        all_states.append(successor)
         count_iteration += 1
 
+    result["current"] = current
+    result["all_states"] = all_states
+    result["iteration"] = count_iteration
     return current
