@@ -13,7 +13,6 @@ class Problem:
 @dataclass
 class ProblemState:
     problem: Problem
-    packages: list[Package]
     grid: list[list[list[set[str]]]]  # grid[z][y][x]
 
     @property
@@ -29,6 +28,9 @@ class ProblemState:
         outside_volume = {}
 
         for package in self.packages:
+            if (package.is_outside):
+                continue
+            
             dx, dy, dz = package.oriented_dimension
 
             # Batas package pada setiap sumbu.
@@ -51,7 +53,7 @@ class ProblemState:
                 * package.dimension.h
             )
 
-            inside_x = max(0, min(x_max, self.truck.w) - max(x_min, 0))
+            inside_x = max(0, min(x_max, self.truck.dimension.w) - max(x_min, 0))
             inside_y = max(0, min(y_max, self.truck.dimension.l) - max(y_min, 0))
             inside_z = max(0, min(z_max, self.truck.dimension.h) - max(z_min, 0))
 
@@ -65,15 +67,15 @@ class ProblemState:
     def loaded_list(self):
         unloaded_list = set()
         for package in self.problem.packages:
-            if package.position is None:
+            if package.is_outside():
                 unloaded_list.add(package.id)
         return unloaded_list
     
     @property
-    def loaded_list(self):
+    def unloaded_list(self):
         loaded_list = set()
         for package in self.problem.packages:
-            if package.position is not None:
+            if not package.is_outside():
                 loaded_list.add(package.id)
         return loaded_list
 

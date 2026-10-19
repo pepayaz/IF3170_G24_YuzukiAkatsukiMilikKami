@@ -114,16 +114,20 @@ class Package:
             h=self._rotate_axis(self.orientation.h, "z", direction)
         )
     
-    def move(self, target_position: Position):
-        self.position = Position(
-            target_position.x,
-            target_position.y,
-            target_position.z
-        )
+    def move(self, target_position: Position | None):
+        if isinstance(Position, target_position):
+            self.position = Position(
+                target_position.x,
+                target_position.y,
+                target_position.z
+            )
+        else:
+            self.position = None
         
     def is_outside(self):
         return self.position == None
 
+    @property
     def oriented_dimension(self):
         orientations = {
             'w': self.orientation.w,
