@@ -113,8 +113,28 @@ def visualize_result(result: dict, algorithm: str):
     draw_state(initial_ax, initial_state, "Initial State", initial_value)
     draw_state(final_ax, final_state, "Final State", final_value)
 
+    # Random Restart = objective untuk setiap restart
+    if algorithm == "Random Restart":
+        graph_ax.set_xlabel("Iterasi Total")
+        objective_per_restart = result.get("objective_per_restart", [])
+        start_iteration = 0
+
+        for index in range(len(objective_per_restart)):
+            restart_history = objective_per_restart[index]
+            end_iteration = start_iteration + len(restart_history)
+            iterations = range(start_iteration, end_iteration)
+
+            graph_ax.plot(iterations, restart_history, marker="o", color="tab:blue")
+
+            if index > 0:
+                restart_line = start_iteration - 0.5
+                graph_ax.axvline(restart_line, color="gray", linestyle="--", alpha=0.6)
+                graph_ax.text(restart_line, 0.97, f"Restart {index}", transform=graph_ax.get_xaxis_transform(), ha="right", va="top", rotation=90, fontsize=7, color="gray")
+
+            start_iteration = end_iteration
+
     # Genetic Algorithm menampilkan nilai maksimum dan rata-rata populasi
-    if algorithm == "Genetic Algorithm": # TODO
+    elif algorithm == "Genetic Algorithm": # TODO
         graph_ax.plot(history, label="Maximum")
         graph_ax.plot(result.get("average_states", []), label="Average")
         graph_ax.legend()
@@ -169,5 +189,5 @@ def visualize_result(result: dict, algorithm: str):
     # Bechmark untuk algoritma
     info_ax.text(0.05, 0.9, info_text, va="top", fontsize=12)
 
-    figure.suptitle("Hasil Pencarian", fontsize=16, fontweight="bold")
+    figure.suptitle("Hasil Algoritma", fontsize=16, fontweight="bold")
     plt.show()
