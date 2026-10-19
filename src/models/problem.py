@@ -28,7 +28,7 @@ class ProblemState:
         outside_volume = {}
 
         for package in self.packages:
-            if (package.is_outside):
+            if package.is_outside():
                 continue
             
             dx, dy, dz = package.oriented_dimension
@@ -64,7 +64,7 @@ class ProblemState:
         return outside_volume
 
     @property
-    def loaded_list(self):
+    def unloaded_list(self):
         unloaded_list = set()
         for package in self.problem.packages:
             if package.is_outside():
@@ -72,7 +72,7 @@ class ProblemState:
         return unloaded_list
     
     @property
-    def unloaded_list(self):
+    def loaded_list(self):
         loaded_list = set()
         for package in self.problem.packages:
             if not package.is_outside():

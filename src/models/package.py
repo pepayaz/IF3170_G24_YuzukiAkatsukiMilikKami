@@ -115,7 +115,7 @@ class Package:
         )
     
     def move(self, target_position: Position | None):
-        if isinstance(Position, target_position):
+        if isinstance(target_position, Position):
             self.position = Position(
                 target_position.x,
                 target_position.y,
