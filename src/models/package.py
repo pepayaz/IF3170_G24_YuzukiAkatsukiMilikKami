@@ -146,7 +146,7 @@ class Package:
             sign = -1 if axis.startswith('-') else 1
             axis = axis.lstrip('-')
 
-            dim[axis] = sizes[dimension] * sign
+            dim[axis] = (sizes[dimension]-1) * sign
             
         return dim['x'], dim['y'], dim['z']
         
