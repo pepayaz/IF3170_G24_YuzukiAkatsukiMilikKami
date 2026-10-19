@@ -17,16 +17,22 @@ def run_hillclimbing(problem: Problem, variant: str):
     elif variant == "stochastic":
         pass
     else:
-        pass
+        raise RuntimeError(f"Invalid Hill Climbing Variant: {variant}")
 
-def steepest_ascent(state: ProblemState):
+def steepest_ascent(state: ProblemState) -> dict: 
     current: ProblemState = state
-
+    all_states = [evaluate_state(current)["state_value"]]
+    iteration = 0
+    result = {}
+    
     while True:
         all_successor = generate_all_successor(current)
 
         if len(all_successor) == 0:
-            return current
+            result["current"] = current
+            result["all_states"] = all_states
+            result["iteration"] = iteration
+            return result
         
         best_neighbour: ProblemState = all_successor[0]
         best_value: int = evaluate_state(best_neighbour)["state_value"]
@@ -41,9 +47,14 @@ def steepest_ascent(state: ProblemState):
         current_value = evaluate_state(current)["state_value"]
 
         if best_value <= current_value:
-            return current
+            result["current"] = current
+            result["all_states"] = all_states
+            result["iteration"] = iteration
+            return result
         
         current = best_neighbour
+        all_states.append(best_value)
+        iteration += 1
 
 def sideways_move(state: ProblemState, max_sideways_move):
     current: ProblemState = state
