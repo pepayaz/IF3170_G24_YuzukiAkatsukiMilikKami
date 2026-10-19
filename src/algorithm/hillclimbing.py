@@ -1,7 +1,7 @@
-from ...utils.action import generate_all_successor, generate_random_successor
-from ...models.problem import Problem, ProblemState
-from ...utils.evaluator import evaluate_state
-from ...utils.initial_state import generate_initial_state
+from ..utils.action import generate_all_successor, generate_random_successor
+from ..models.problem import Problem, ProblemState
+from ..utils.evaluator import evaluate_state
+from ..utils.initial_state import generate_initial_state
 
 from time import perf_counter
 
