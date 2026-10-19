@@ -16,7 +16,7 @@ def rotate_package(state: ProblemState, id: str, rotation_axis: Axis) -> Problem
     package = get_package(updated, id)
     initial_orientation = package.orientation
 
-    sign = -1 if rotation_axis.startswith('-') else 1
+    sign = RotationDirection.NEGATIVE if rotation_axis.startswith('-') else RotationDirection.POSITIVE
     axis = rotation_axis.lstrip('-')
 
     if axis == 'x':
@@ -28,7 +28,7 @@ def rotate_package(state: ProblemState, id: str, rotation_axis: Axis) -> Problem
     else:
         raise RuntimeError(f"Invalid axis: {axis}")
 
-    _update_grid_rotate(updated, id, initial_orientation)
+    _update_grid_rotate(state, updated, id)
 
     return updated
 
@@ -106,14 +106,19 @@ def get_package(state: ProblemState, id: str) -> Package | None:
 
     return None
 
-def get_occupied_cells(package: Package) -> set[Position]:
-    sizes = {
-        'w': package.dimension.w,
-        'l': package.dimension.l,
-        'h': package.dimension.h,
+def get_occupied_cells(package: Package) -> set[(int, int, int)]:
+    cells = set()
+    
+    if package.position is None:
+        return cells
+    
+    dim = {
+        'x': 0,
+        'y': 0,
+        'z': 0,
     }
 
-    dim = package.oriented_dimension
+    dim['x'], dim['y'], dim['z'] = package.oriented_dimension
     position = package.position
 
     starts = {
@@ -121,8 +126,6 @@ def get_occupied_cells(package: Package) -> set[Position]:
         'y': position.y,
         'z': position.z,
     }
-
-    cells = set()
 
     for axis in ('x', 'y', 'z'):
         start = starts[axis]
@@ -140,6 +143,6 @@ def get_occupied_cells(package: Package) -> set[Position]:
     for z in z_range:
         for y in y_range:
             for x in x_range:
-                cells.add(Position(x, y, z))
+                cells.add((x, y, z))
 
     return cells
