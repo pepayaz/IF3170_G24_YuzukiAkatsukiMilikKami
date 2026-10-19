@@ -96,7 +96,7 @@ def evaluate_overlap(state: Problem):
         if p1.is_outside():
             continue
 
-        p1_size_x, p1_size_y, p1_size_z = oriented_dimension(p1)
+        p1_size_x, p1_size_y, p1_size_z = p1.oriented_dimension
 
         p1_start_x = p1.position.x
         p1_start_y = p1.position.y
@@ -112,7 +112,7 @@ def evaluate_overlap(state: Problem):
             if p2.is_outside(): 
                 continue
                 
-            p2_size_x, p2_size_y, p2_size_z = oriented_dimension(p2)
+            p2_size_x, p2_size_y, p2_size_z = p2.oriented_dimension
 
             p2_start_x = p2.position.x
             p2_start_y = p2.position.y
@@ -153,7 +153,7 @@ def evaluate_unsupported(state: Problem):
         if package.is_outside():
             continue
 
-        dim_x, dim_y, dim_z = oriented_dimension(package)
+        dim_x, dim_y, dim_z = package.oriented_dimension
         
         support_top_y = max((support.position.y + support_dim_y), (support.position.y - support_dim_y))
         
@@ -177,7 +177,7 @@ def evaluate_unsupported(state: Problem):
             if support.is_outside():
                 continue
 
-            support_dim_x, support_dim_y, support_dim_z = (oriented_dimension(support))
+            support_dim_x, support_dim_y, support_dim_z = (support.oriented_dimension)
             support_top_y = (support.position.y + support_dim_y)
 
             if support_top_y != bottom_y - 1:
@@ -213,7 +213,7 @@ def evaluate_fragile_support(state: Problem):
         if not support.is_fragile:
             continue
 
-        support_dim_x, support_dim_y, support_dim_z = (oriented_dimension(support))
+        support_dim_x, support_dim_y, support_dim_z = (support.oriented_dimension)
 
         support_start_x = support.position.x
         support_start_z = support.position.z
@@ -230,7 +230,7 @@ def evaluate_fragile_support(state: Problem):
             if package.is_outside():
                 continue
             
-            dim_x, dim_y, dim_z = (oriented_dimension(support))
+            dim_x, dim_y, dim_z = (support.oriented_dimension)
 
             bottom_z = min((package.position.y + dim_y), (package.position.y - dim_y))
 
@@ -250,26 +250,3 @@ def evaluate_fragile_support(state: Problem):
                 fragile_support_count += 1
 
     return fragile_support_count
-
-
-def oriented_dimension(package: Package):
-    orientations = {
-        'w': package.orientation.w,
-        'l': package.orientation.l,
-        'h': package.orientation.h,
-    }
-    
-    dim = {}
-    sizes = {
-        'w': package.dimension.w,
-        'l': package.dimension.l,
-        'h': package.dimension.h,
-    }
-
-    for dimension, axis in orientations.items():
-        sign = -1 if axis.startswith('-') else 1
-        axis = axis.lstrip('-')
-
-        dim[axis] = sizes[dimension] * sign
-        
-    return dim['x'], dim['y'], dim['z']

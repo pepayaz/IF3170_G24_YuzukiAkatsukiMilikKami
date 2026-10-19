@@ -123,6 +123,28 @@ class Package:
         
     def is_outside(self):
         return self.position == None
+
+    def oriented_dimension(self):
+        orientations = {
+            'w': self.orientation.w,
+            'l': self.orientation.l,
+            'h': self.orientation.h,
+        }
+        
+        dim = {}
+        sizes = {
+            'w': self.dimension.w,
+            'l': self.dimension.l,
+            'h': self.dimension.h,
+        }
+
+        for dimension, axis in orientations.items():
+            sign = -1 if axis.startswith('-') else 1
+            axis = axis.lstrip('-')
+
+            dim[axis] = sizes[dimension] * sign
+            
+        return dim['x'], dim['y'], dim['z']
         
 Axis = Literal["x", "y", "z", "-x", "-y", "-z"]
 
