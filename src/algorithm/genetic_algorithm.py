@@ -1,7 +1,9 @@
 from copy import deepcopy
+from random import Random
+from time import perf_counter
 
 from ..models.package import Position, RotationDirection
-from ..utils.initial_state import ROTATIONS
+from ..utils.initial_state import ROTATIONS, generate_population
 from ..utils.evaluator import evaluate_state
 
 def evaluate_population(population):
@@ -174,3 +176,132 @@ def mutate(child_state, mutation_rate, rng):
     mutated.rebuild()
 
     return mutated
+
+
+def create_next_generation(evaluated_population, mutation_rate, rng):
+    if not evaluated_population:
+        raise ValueError("Populasi tidak boleh kosong")
+
+    next_population = []
+    population_size = len(evaluated_population)
+
+    while len(next_population) < population_size:
+        parent_1 = roulette_selection(evaluated_population, rng)
+        parent_2 = roulette_selection(evaluated_population, rng)
+        child = crossover(parent_1, parent_2, rng)
+        child = mutate(child, mutation_rate, rng)
+        next_population.append({
+            "state": child,
+            "evaluation": evaluate_state(child)
+        })
+
+    return next_population
+
+
+def update_best_valid(best_valid, evaluated_population):
+    for individual in evaluated_population:
+        evaluation = individual["evaluation"]
+        if not evaluation["is_valid"]:
+            continue
+        if best_valid is None or evaluation["value"] > best_valid["evaluation"]["value"]:
+            best_valid = deepcopy(individual)
+
+    return best_valid
+
+
+def summarize_generation(evaluated_population, generation, best_valid):
+    if not evaluated_population:
+        raise ValueError("Populasi tidak boleh kosong")
+
+    first = evaluated_population[0]["evaluation"]
+    max_fitness = first["state_value"]
+    max_value = first["value"]
+    total_fitness = 0
+    total_value = 0
+    valid_count = 0
+
+    for individual in evaluated_population:
+        evaluation = individual["evaluation"]
+        fitness = evaluation["state_value"]
+        value = evaluation["value"]
+        total_fitness += fitness
+        total_value += value
+
+        if fitness > max_fitness:
+            max_fitness = fitness
+        if value > max_value:
+            max_value = value
+        if evaluation["is_valid"]:
+            valid_count += 1
+
+    best_valid_value = None
+
+    if best_valid is not None:
+        best_valid_value = best_valid["evaluation"]["value"]
+
+    population_size = len(evaluated_population)
+
+    return {
+        "generation": generation,
+        "max_fitness": max_fitness,
+        "mean_fitness": total_fitness / population_size,
+        "max_value": max_value,
+        "mean_value": total_value / population_size,
+        "valid_count": valid_count,
+        "best_valid_value": best_valid_value
+    }
+
+
+def run_ga(problem, population_size=20, generation_count=100, mutation_rate=0.2, seed=None, load_probability=0.5):
+    if type(generation_count) is not int or generation_count < 0:
+        raise ValueError("Generation count harus berupa bilangan bulat nonnegatif")
+    
+    if type(mutation_rate) not in (int, float):
+        raise ValueError("Mutation rate harus berupa angka antara 0 dan 1")
+    
+    if not 0 <= mutation_rate <= 1:
+        raise ValueError("Mutation rate harus berada antara 0 dan 1")
+
+    started = perf_counter()
+    population = generate_population(problem, population_size=population_size, seed=seed, load_probability=load_probability)
+
+    evaluated = evaluate_population(population)
+    initial_population = deepcopy(evaluated)
+    best_valid = update_best_valid(None, evaluated)
+    history = [summarize_generation(evaluated, 0, best_valid)]
+
+    evolution_seed = None
+
+    if seed is not None:
+        evolution_seed = seed + 1
+        
+    rng = Random(evolution_seed)
+
+    for generation in range(1, generation_count + 1):
+        evaluated = create_next_generation(evaluated, mutation_rate, rng)
+        best_valid = update_best_valid(best_valid, evaluated)
+        history.append(summarize_generation(evaluated, generation, best_valid))
+
+    best_individual = deepcopy(find_best_individual(evaluated))
+    duration = perf_counter() - started
+
+    return {
+        "initial_population": initial_population,
+        "final_population": evaluated,
+        "best_individual": best_individual,
+        "best_valid": best_valid,
+        "history": history,
+        "duration_seconds": duration,
+        "parameters": {
+            "population_size": population_size,
+            "generation_count": generation_count,
+            "mutation_rate": mutation_rate,
+            "seed": seed,
+            "evolution_seed": evolution_seed,
+            "load_probability": load_probability,
+            "selection": "roulette",
+            "crossover": "one_point",
+            "elitism": False,
+            "negative_fitness_weights": "fitness - minimum + 1 when minimum < 0"
+        }
+    }
