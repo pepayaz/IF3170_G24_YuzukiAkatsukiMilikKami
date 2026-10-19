@@ -2,16 +2,82 @@ from __future__ import annotations
 from ..models.problem import Problem, Truck
 from ..models.package import Package, Orientation, Position, Axis
 
+#Penalty Constant
+OVERLOAD_PENALTY = 10
 
-def evaluate_load(state: Problem):
+def evaluate_state(state: Problem):
+    penalty_weights = {
+        "violation": -100, #per violation
+        "overload": -10, #per weight
+        "overlap": -10, #per block
+        "out_of_bounds": -10, #per block
+        "unsupported": -10, #per object
+        "fragile_support": -10, #per object
+    }
+
+    overload_amount = evaluate_load(state)
+    overlap_amount = evaluate_overlap(state)
+    out_of_bounds_amount = evaluate_out_of_bounds(state)
+    unsupported_amount = evaluate_unsupported(state)
+    fragile_support_amount = evaluate_fragile_support(state)
+
+    is_valid = True
+    violation_amount = 0
+    for _, amount in violations.items():
+        if amount > 0:
+            violation_amount += 1
+            is_valid = False
+
+    violations = {
+        "violation": violation_amount,
+        "overload": overload_amount,
+        "overlap": overlap_amount,
+        "out_of_bounds": out_of_bounds_amount,
+        "unsupported": unsupported_amount,
+        "fragile_support": fragile_support_amount
+    }
+
+    total_penalty = 0
+
+    for violation_name in violations:
+        amount = violations[violation_name]
+        weight = penalty_weights[violation_name]
+
+        total_penalty += amount * weight
+
+    loaded_value = evaluate_value(state)
+    state_value = loaded_value - total_penalty
+
+    result = {
+        "is_valid": is_valid,
+        "value": loaded_value,
+        "penalty": total_penalty,
+        "state_value": state_value,
+        "violations": violations,
+    }
+
+    return result
+
+
+def evaluate_value(state: Problem):
     total_value = 0
-    total_weight = 0
 
     for package in state.packages:
         if package.is_outside():
             continue
 
         total_value += package.value
+
+    return total_value
+
+
+def evaluate_load(state: Problem):
+    total_weight = 0
+
+    for package in state.packages:
+        if package.is_outside():
+            continue
+
         total_weight += package.weight
 
     max_capacity = state.truck.max_capacity
@@ -30,7 +96,7 @@ def evaluate_overlap(state: Problem):
         if p1.is_outside():
             continue
 
-        p1_size_x, p1_size_y, p1_size_z = oriented_dimension(p1)
+        p1_size_x, p1_size_y, p1_size_z = p1.oriented_dimension
 
         p1_start_x = p1.position.x
         p1_start_y = p1.position.y
@@ -46,7 +112,7 @@ def evaluate_overlap(state: Problem):
             if p2.is_outside(): 
                 continue
                 
-            p2_size_x, p2_size_y, p2_size_z = oriented_dimension(p2)
+            p2_size_x, p2_size_y, p2_size_z = p2.oriented_dimension
 
             p2_start_x = p2.position.x
             p2_start_y = p2.position.y
@@ -87,7 +153,7 @@ def evaluate_unsupported(state: Problem):
         if package.is_outside():
             continue
 
-        dim_x, dim_y, dim_z = oriented_dimension(package)
+        dim_x, dim_y, dim_z = package.oriented_dimension
         
         support_top_y = max((support.position.y + support_dim_y), (support.position.y - support_dim_y))
         
@@ -111,7 +177,7 @@ def evaluate_unsupported(state: Problem):
             if support.is_outside():
                 continue
 
-            support_dim_x, support_dim_y, support_dim_z = (oriented_dimension(support))
+            support_dim_x, support_dim_y, support_dim_z = (support.oriented_dimension)
             support_top_y = (support.position.y + support_dim_y)
 
             if support_top_y != bottom_y - 1:
@@ -147,7 +213,7 @@ def evaluate_fragile_support(state: Problem):
         if not support.is_fragile:
             continue
 
-        support_dim_x, support_dim_y, support_dim_z = (oriented_dimension(support))
+        support_dim_x, support_dim_y, support_dim_z = (support.oriented_dimension)
 
         support_start_x = support.position.x
         support_start_z = support.position.z
@@ -164,7 +230,7 @@ def evaluate_fragile_support(state: Problem):
             if package.is_outside():
                 continue
             
-            dim_x, dim_y, dim_z = (oriented_dimension(support))
+            dim_x, dim_y, dim_z = (support.oriented_dimension)
 
             bottom_z = min((package.position.y + dim_y), (package.position.y - dim_y))
 
@@ -184,26 +250,3 @@ def evaluate_fragile_support(state: Problem):
                 fragile_support_count += 1
 
     return fragile_support_count
-
-
-def oriented_dimension(package: Package):
-    orientations = {
-        'w': package.orientation.w,
-        'l': package.orientation.l,
-        'h': package.orientation.h,
-    }
-    
-    dim = {}
-    sizes = {
-        'w': package.dimension.w,
-        'l': package.dimension.l,
-        'h': package.dimension.h,
-    }
-
-    for dimension, axis in orientations.items():
-        sign = -1 if axis.startswith('-') else 1
-        axis = axis.lstrip('-')
-
-        dim[axis] = sizes[dimension] * sign
-        
-    return dim['x'], dim['y'], dim['z']

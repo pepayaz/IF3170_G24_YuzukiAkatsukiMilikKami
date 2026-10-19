@@ -10,7 +10,43 @@ class Problem:
     truck: Truck
     packages: list[Package]
     grid: list[list[list[set[str]]]]  # grid[z][y][x]
-    outside_volume: dict[str, int]
+
+    @property
+    def outside_volume(self) -> dict[str, int]:
+        outside_volume = {}
+
+        for package in self.packages:
+            dx, dy, dz = package.oriented_dimension
+
+            # Batas package pada setiap sumbu.
+            x1 = package.position.x
+            x2 = x1 + dx
+
+            y1 = package.position.y
+            y2 = y1 + dy
+
+            z1 = package.position.z
+            z2 = z1 + dz
+
+            x_min, x_max = min(x1, x2), max(x1, x2)
+            y_min, y_max = min(y1, y2), max(y1, y2)
+            z_min, z_max = min(z1, z2), max(z1, z2)
+
+            total_volume = (
+                package.dimension.w
+                * package.dimension.l
+                * package.dimension.h
+            )
+
+            inside_x = max(0, min(x_max, self.truck.w) - max(x_min, 0))
+            inside_y = max(0, min(y_max, self.truck.dimension.l) - max(y_min, 0))
+            inside_z = max(0, min(z_max, self.truck.dimension.h) - max(z_min, 0))
+
+            inside_volume = inside_x * inside_y * inside_z
+
+            outside_volume[package.id] = total_volume - inside_volume
+
+        return outside_volume
 
     @property
     def loaded_list(self):
