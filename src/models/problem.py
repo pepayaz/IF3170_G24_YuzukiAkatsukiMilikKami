@@ -31,7 +31,7 @@ class ProblemState:
             if package.is_outside():
                 continue
             
-            dx, dy, dz = package.oriented_dimension
+            dx, dy, dz = package.oriented_offset
 
             # Batas package pada setiap sumbu.
             x1 = package.position.x
@@ -53,9 +53,9 @@ class ProblemState:
                 * package.dimension.h
             )
 
-            inside_x = max(0, min(x_max, self.truck.dimension.w) - max(x_min, 0))
-            inside_y = max(0, min(y_max, self.truck.dimension.l) - max(y_min, 0))
-            inside_z = max(0, min(z_max, self.truck.dimension.h) - max(z_min, 0))
+            inside_x = max(0, min(x_max, self.truck.dimension.w - 1) - max(x_min, 0) + 1)
+            inside_y = max(0, min(y_max, self.truck.dimension.l - 1) - max(y_min, 0) + 1)
+            inside_z = max(0, min(z_max, self.truck.dimension.h - 1) - max(z_min, 0) + 1)
 
             inside_volume = inside_x * inside_y * inside_z
 

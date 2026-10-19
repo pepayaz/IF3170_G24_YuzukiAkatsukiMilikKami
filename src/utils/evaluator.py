@@ -95,15 +95,15 @@ def evaluate_overlap(state: ProblemState):
         if p1.is_outside():
             continue
 
-        p1_size_x, p1_size_y, p1_size_z = p1.oriented_dimension
+        p1_size_x, p1_size_y, p1_size_z = p1.oriented_offset
 
-        p1_start_x = p1.position.x
-        p1_start_y = p1.position.y
-        p1_start_z = p1.position.z
+        p1_end_x = p1.position.x + p1_size_x
+        p1_end_y = p1.position.y + p1_size_y
+        p1_end_z = p1.position.z + p1_size_z
 
-        p1_end_x = p1_start_x + p1_size_x
-        p1_end_y = p1_start_y + p1_size_y
-        p1_end_z = p1_start_z + p1_size_z
+        p1_min_x, p1_max_x = min(p1.position.x, p1_end_x), max(p1.position.x, p1_end_x)
+        p1_min_y, p1_max_y = min(p1.position.y, p1_end_y), max(p1.position.y, p1_end_y)
+        p1_min_z, p1_max_z = min(p1.position.z, p1_end_z), max(p1.position.z, p1_end_z)
 
         for j in range(i+1, len(packages)):
             p2 = packages[j]
@@ -111,19 +111,19 @@ def evaluate_overlap(state: ProblemState):
             if p2.is_outside(): 
                 continue
                 
-            p2_size_x, p2_size_y, p2_size_z = p2.oriented_dimension
+            p2_size_x, p2_size_y, p2_size_z = p2.oriented_offset
 
-            p2_start_x = p2.position.x
-            p2_start_y = p2.position.y
-            p2_start_z = p2.position.z
+            p2_end_x = p2.position.x + p2_size_x
+            p2_end_y = p2.position.y + p2_size_y
+            p2_end_z = p2.position.z + p2_size_z
 
-            p2_end_x = p2_start_x + p2_size_x
-            p2_end_y = p2_start_y + p2_size_y
-            p2_end_z = p2_start_z + p2_size_z
+            p2_min_x, p2_max_x = min(p2.position.x, p2_end_x), max(p2.position.x, p2_end_x)
+            p2_min_y, p2_max_y = min(p2.position.y, p2_end_y), max(p2.position.y, p2_end_y)
+            p2_min_z, p2_max_z = min(p2.position.z, p2_end_z), max(p2.position.z, p2_end_z)
 
-            overlap_x = (min(p1_end_x, p2_end_x) - max(p1_start_x, p2_start_x))
-            overlap_y = (min(p1_end_y, p2_end_y) - max(p1_start_y, p2_start_y))
-            overlap_z = (min(p1_end_z, p2_end_z) - max(p1_start_z, p2_start_z))
+            overlap_x = min(p1_max_x, p2_max_x) - max(p1_min_x, p2_min_x) + 1
+            overlap_y = min(p1_max_y, p2_max_y) - max(p1_min_y, p2_min_y) + 1
+            overlap_z = min(p1_max_z, p2_max_z) - max(p1_min_z, p2_min_z) + 1
 
             if overlap_x <= 0 or overlap_y <= 0 or overlap_z <= 0:
                 continue
@@ -152,18 +152,17 @@ def evaluate_unsupported(state: ProblemState):
         if package.is_outside():
             continue
 
-        dim_x, dim_y, dim_z = package.oriented_dimension
+        dim_x, dim_y, dim_z = package.oriented_offset
                 
         bottom_z = min((package.position.z + dim_z), package.position.z)
         
         if bottom_z == 0:
             continue
 
-        start_x = package.position.x
-        start_y = package.position.y
-
-        end_x = start_x + dim_x
-        end_y = start_y + dim_y
+        end_x = package.position.x + dim_x
+        end_y = package.position.y + dim_y
+        min_x, max_x = min(package.position.x, end_x), max(package.position.x, end_x)
+        min_y, max_y = min(package.position.y, end_y), max(package.position.y, end_y)
 
         has_support = False
 
@@ -174,20 +173,19 @@ def evaluate_unsupported(state: ProblemState):
             if support.is_outside():
                 continue
 
-            support_dim_x, support_dim_y, support_dim_z = (support.oriented_dimension)
+            support_dim_x, support_dim_y, support_dim_z = (support.oriented_offset)
             support_top_z = max((support.position.z + support_dim_z), support.position.z)
 
-            if support_top_z != bottom_z:
+            if support_top_z != bottom_z - 1:
                 continue
 
-            support_start_x = support.position.x
-            support_start_y = support.position.y
+            support_end_x = support.position.x + support_dim_x
+            support_end_y = support.position.y + support_dim_y
+            support_min_x, support_max_x = min(support.position.x, support_end_x), max(support.position.x, support_end_x)
+            support_min_y, support_max_y = min(support.position.y, support_end_y), max(support.position.y, support_end_y)
 
-            support_end_x = support_start_x + support_dim_x
-            support_end_y = support_start_y + support_dim_y
-
-            overlap_x = (min(end_x, support_end_x) - max(start_x, support_start_x))
-            overlap_y = (min(end_y, support_end_y) - max(start_y, support_start_y))
+            overlap_x = min(max_x, support_max_x) - max(min_x, support_min_x) + 1
+            overlap_y = min(max_y, support_max_y) - max(min_y, support_min_y) + 1
 
             if overlap_x > 0 and overlap_y > 0:
                 has_support = True
@@ -210,13 +208,12 @@ def evaluate_fragile_support(state: ProblemState):
         if not support.is_fragile:
             continue
 
-        support_dim_x, support_dim_y, support_dim_z = (support.oriented_dimension)
+        support_dim_x, support_dim_y, support_dim_z = (support.oriented_offset)
 
-        support_start_x = support.position.x
-        support_start_y = support.position.y
-
-        support_end_x = support_start_x + support_dim_x
-        support_end_y = support_start_y + support_dim_y
+        support_end_x = support.position.x + support_dim_x
+        support_end_y = support.position.y + support_dim_y
+        support_min_x, support_max_x = min(support.position.x, support_end_x), max(support.position.x, support_end_x)
+        support_min_y, support_max_y = min(support.position.y, support_end_y), max(support.position.y, support_end_y)
 
         support_top_z = max((support.position.z + support_dim_z), support.position.z)
 
@@ -227,21 +224,20 @@ def evaluate_fragile_support(state: ProblemState):
             if package.is_outside():
                 continue
             
-            dim_x, dim_y, dim_z = (package.oriented_dimension)
+            dim_x, dim_y, dim_z = (package.oriented_offset)
 
             bottom_z = min((package.position.z + dim_z), package.position.z)
 
-            if bottom_z != support_top_z:
+            if bottom_z != support_top_z + 1:
                 continue
 
-            start_x = package.position.x
-            start_y = package.position.y
+            end_x = package.position.x + dim_x
+            end_y = package.position.y + dim_y
+            min_x, max_x = min(package.position.x, end_x), max(package.position.x, end_x)
+            min_y, max_y = min(package.position.y, end_y), max(package.position.y, end_y)
 
-            end_x = start_x + dim_x
-            end_y = start_y + dim_y
-
-            overlap_x = (min(support_end_x, end_x) - max(support_start_x, start_x))
-            overlap_y = (min(support_end_y, end_y) - max(support_start_y, start_y))
+            overlap_x = min(support_max_x, max_x) - max(support_min_x, min_x) + 1
+            overlap_y = min(support_max_y, max_y) - max(support_min_y, min_y) + 1
 
             if overlap_x > 0 and overlap_y > 0:
                 fragile_support_count += 1

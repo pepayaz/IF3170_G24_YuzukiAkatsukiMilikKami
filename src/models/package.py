@@ -13,7 +13,7 @@ class Package:
     is_fragile: bool
     eta: int
     position: Position | None
-    orientation: Orientation | None
+    orientation: Orientation
     
     def __init__(self, id: str, dimension: Dimension, value: int,
                  weight: int, is_fragile: bool, eta: int
@@ -25,7 +25,7 @@ class Package:
         self.is_fragile = is_fragile
         self.eta = eta
         self.position = None
-        self.orientation = None
+        self.orientation = Orientation("x", "y", "z")
     
     @staticmethod
     def _rotate_axis(axis: Axis, rotation_axis: Literal["x", "y", "z"],
@@ -128,7 +128,7 @@ class Package:
         return self.position == None
 
     @property
-    def oriented_dimension(self):
+    def oriented_offset(self):
         orientations = {
             'w': self.orientation.w,
             'l': self.orientation.l,
