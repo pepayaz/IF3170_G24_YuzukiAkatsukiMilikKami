@@ -1,7 +1,8 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from typing import Literal
-from dimension import Dimension
+from .dimension import Dimension
 
 @dataclass
 class Package:
@@ -11,8 +12,8 @@ class Package:
     weight: int
     is_fragile: bool
     eta: int
-    position: Position
-    orientation: Orientation
+    position: Position | None
+    orientation: Orientation | None
     
     def __init__(self, id: str, dimension: Dimension, value: int,
                  weight: int, is_fragile: bool, eta: int
@@ -119,6 +120,9 @@ class Package:
             target_position.y,
             target_position.z
         )
+        
+    def is_outside(self):
+        return self.position == None
         
 Axis = Literal["x", "y", "z", "-x", "-y", "-z"]
 
