@@ -128,7 +128,7 @@ class Package:
         return self.position == None
 
     @property
-    def oriented_dimension(self):
+    def oriented_offset(self):
         orientations = {
             'w': self.orientation.w,
             'l': self.orientation.l,

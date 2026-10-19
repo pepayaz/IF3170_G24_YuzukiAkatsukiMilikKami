@@ -187,7 +187,7 @@ def get_occupied_cells(package: Package) -> set[(int, int, int)]:
         'z': 0,
     }
 
-    dim['x'], dim['y'], dim['z'] = package.oriented_dimension
+    dim['x'], dim['y'], dim['z'] = package.oriented_offset
     position = package.position
 
     starts = {

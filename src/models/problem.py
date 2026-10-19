@@ -31,7 +31,7 @@ class ProblemState:
             if package.is_outside():
                 continue
             
-            dx, dy, dz = package.oriented_dimension
+            dx, dy, dz = package.oriented_offset
 
             # Batas package pada setiap sumbu.
             x1 = package.position.x

@@ -95,7 +95,7 @@ def evaluate_overlap(state: ProblemState):
         if p1.is_outside():
             continue
 
-        p1_size_x, p1_size_y, p1_size_z = p1.oriented_dimension
+        p1_size_x, p1_size_y, p1_size_z = p1.oriented_offset
 
         p1_start_x = p1.position.x
         p1_start_y = p1.position.y
@@ -111,7 +111,7 @@ def evaluate_overlap(state: ProblemState):
             if p2.is_outside(): 
                 continue
                 
-            p2_size_x, p2_size_y, p2_size_z = p2.oriented_dimension
+            p2_size_x, p2_size_y, p2_size_z = p2.oriented_offset
 
             p2_start_x = p2.position.x
             p2_start_y = p2.position.y
@@ -152,7 +152,7 @@ def evaluate_unsupported(state: ProblemState):
         if package.is_outside():
             continue
 
-        dim_x, dim_y, dim_z = package.oriented_dimension
+        dim_x, dim_y, dim_z = package.oriented_offset
                 
         bottom_z = min((package.position.z + dim_z), package.position.z)
         
@@ -174,7 +174,7 @@ def evaluate_unsupported(state: ProblemState):
             if support.is_outside():
                 continue
 
-            support_dim_x, support_dim_y, support_dim_z = (support.oriented_dimension)
+            support_dim_x, support_dim_y, support_dim_z = (support.oriented_offset)
             support_top_z = max((support.position.z + support_dim_z), support.position.z)
 
             if support_top_z != bottom_z:
@@ -210,7 +210,7 @@ def evaluate_fragile_support(state: ProblemState):
         if not support.is_fragile:
             continue
 
-        support_dim_x, support_dim_y, support_dim_z = (support.oriented_dimension)
+        support_dim_x, support_dim_y, support_dim_z = (support.oriented_offset)
 
         support_start_x = support.position.x
         support_start_y = support.position.y
@@ -227,7 +227,7 @@ def evaluate_fragile_support(state: ProblemState):
             if package.is_outside():
                 continue
             
-            dim_x, dim_y, dim_z = (package.oriented_dimension)
+            dim_x, dim_y, dim_z = (package.oriented_offset)
 
             bottom_z = min((package.position.z + dim_z), package.position.z)
 
