@@ -200,7 +200,7 @@ def get_occupied_cells(package: Package) -> set[(int, int, int)]:
         start = starts[axis]
         end = start + dim[axis]
 
-        axis_range = range(min(start, end), max(start, end))
+        axis_range = range(min(start, end), max(start, end) + 1)
 
         if axis == 'x':
             x_range = axis_range
