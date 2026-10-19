@@ -153,9 +153,7 @@ def evaluate_unsupported(state: ProblemState):
             continue
 
         dim_x, dim_y, dim_z = package.oriented_dimension
-        
-        support_top_z = max((support.position.z + support_dim_z), (support.position.z - support_dim_z))
-        
+                
         bottom_z = min((package.position.z + dim_z), (package.position.z - dim_z))
         
         if bottom_z == 0:
@@ -177,9 +175,9 @@ def evaluate_unsupported(state: ProblemState):
                 continue
 
             support_dim_x, support_dim_y, support_dim_z = (support.oriented_dimension)
-            support_top_z = (support.position.z + support_dim_z)
+            support_top_z = max((support.position.z + support_dim_z), (support.position.z - support_dim_z))
 
-            if support_top_z != bottom_z - 1:
+            if support_top_z != bottom_z:
                 continue
 
             support_start_x = support.position.x
