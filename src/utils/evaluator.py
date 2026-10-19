@@ -1,11 +1,11 @@
 from __future__ import annotations
-from ..models.problem import Problem, Truck
+from ..models.problem import ProblemState, Truck
 from ..models.package import Package, Orientation, Position, Axis
 
 #Penalty Constant
 OVERLOAD_PENALTY = 10
 
-def evaluate_state(state: Problem):
+def evaluate_state(state: ProblemState):
     penalty_weights = {
         "violation": -100, #per violation
         "overload": -10, #per weight
@@ -59,7 +59,7 @@ def evaluate_state(state: Problem):
     return result
 
 
-def evaluate_value(state: Problem):
+def evaluate_value(state: ProblemState):
     total_value = 0
 
     for package in state.packages:
@@ -71,7 +71,7 @@ def evaluate_value(state: Problem):
     return total_value
 
 
-def evaluate_load(state: Problem):
+def evaluate_load(state: ProblemState):
     total_weight = 0
 
     for package in state.packages:
@@ -86,7 +86,7 @@ def evaluate_load(state: Problem):
     return overloaded_value
 
 
-def evaluate_overlap(state: Problem):
+def evaluate_overlap(state: ProblemState):
     packages = state.packages
     total_overlap = 0
 
@@ -135,7 +135,7 @@ def evaluate_overlap(state: Problem):
     return total_overlap
 
 
-def evaluate_out_of_bounds(state: Problem):
+def evaluate_out_of_bounds(state: ProblemState):
     total_outside_volume = 0
 
     for package_id in state.outside_volume:
@@ -145,7 +145,7 @@ def evaluate_out_of_bounds(state: Problem):
     return total_outside_volume
 
 
-def evaluate_unsupported(state: Problem):
+def evaluate_unsupported(state: ProblemState):
     packages = state.packages
     unsupported_count = 0
 
@@ -202,7 +202,7 @@ def evaluate_unsupported(state: Problem):
     return unsupported_count
 
 
-def evaluate_fragile_support(state: Problem):
+def evaluate_fragile_support(state: ProblemState):
     packages = state.packages
     fragile_support_count = 0
 

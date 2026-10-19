@@ -1,9 +1,17 @@
 from __future__ import annotations
 
-from ..models.problem import Problem
+from ..models.problem import ProblemState
 from ..models.package import Package, Orientation, Position, Axis, RotationDirection
 
-def rotate_package(state: Problem, id: str, rotation_axis: Axis) -> Problem:
+def generate_random_successor(state: ProblemState) -> ProblemState:
+    pass #todo
+
+
+def generate_all_successor(state: ProblemState) -> ProblemState:
+    pass #todo
+
+
+def rotate_package(state: ProblemState, id: str, rotation_axis: Axis) -> ProblemState:
     updated = state.clone()
     package = get_package(updated, id)
     initial_orientation = package.orientation
@@ -24,7 +32,7 @@ def rotate_package(state: Problem, id: str, rotation_axis: Axis) -> Problem:
 
     return updated
 
-def _update_grid_rotate(origin: Problem, updated: Problem, id: str):
+def _update_grid_rotate(origin: ProblemState, updated: ProblemState, id: str):
     package = get_package(updated,id)
     old_cells = get_occupied_cells(get_package(origin, id))
     new_cells = get_occupied_cells(package)
@@ -44,7 +52,7 @@ def _update_grid_rotate(origin: Problem, updated: Problem, id: str):
             updated.grid[z][y][x].add(package.id)
 
 
-def move_package(state: Problem, id: str, target: Position) -> Problem:
+def move_package(state: ProblemState, id: str, target: Position) -> ProblemState:
     updated = state.clone()
     package = get_package(updated, id)
 
@@ -54,7 +62,7 @@ def move_package(state: Problem, id: str, target: Position) -> Problem:
 
     return updated
 
-def _update_grid_move(origin: Problem, updated: Problem, id: str):
+def _update_grid_move(origin: ProblemState, updated: ProblemState, id: str):
     package = get_package(updated, id)
     old_cells = get_occupied_cells(get_package(origin, id))
     new_cells = get_occupied_cells(package)
@@ -74,7 +82,7 @@ def _update_grid_move(origin: Problem, updated: Problem, id: str):
             updated.grid[z][y][x].add(package.id)
 
 
-def swap_package(state: Problem, id1: str, id2: str) -> Problem:
+def swap_package(state: ProblemState, id1: str, id2: str) -> ProblemState:
     updated = state.clone()
     package1 = get_package(updated, id1)
     package2 = get_package(updated, id2)
@@ -91,7 +99,7 @@ def swap_package(state: Problem, id1: str, id2: str) -> Problem:
     return updated
 
 
-def get_package(state: Problem, id: str) -> Package | None:
+def get_package(state: ProblemState, id: str) -> Package | None:
     for package in state.packages:
         if package.id == id:
             return package

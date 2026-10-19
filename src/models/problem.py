@@ -9,7 +9,20 @@ from .package import Package
 class Problem:
     truck: Truck
     packages: list[Package]
+
+@dataclass
+class ProblemState:
+    problem: Problem
+    packages: list[Package]
     grid: list[list[list[set[str]]]]  # grid[z][y][x]
+
+    @property
+    def truck(self) -> Truck:
+        return self.problem.truck
+
+    @property
+    def packages(self) -> list[Package]:
+        return self.problem.packages
 
     @property
     def outside_volume(self) -> dict[str, int]:
