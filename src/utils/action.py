@@ -3,13 +3,82 @@ from __future__ import annotations
 from ..models.problem import ProblemState
 from ..models.package import Package, Orientation, Position, Axis, RotationDirection
 
+import random
+
 def generate_random_successor(state: ProblemState) -> ProblemState:
-    pass #todo
+    action = random.choice(["move_package", "swap_package", "rotate_package"])
 
+    if action == "move_package":
+        package = random.choice(state.packages)
+        x = random.randrange(state.truck.dimension.w)
+        y = random.randrange(state.truck.dimension.l)
+        z = random.randrange(state.truck.dimension.h)
 
-def generate_all_successor(state: ProblemState) -> ProblemState:
-    pass #todo
+        position = Position(x, y, z)
+        return move_package(state, package.id, position)
 
+    elif action == "swap_package":
+        package_1, package_2 = random.sample(state.packages, 2)
+        return swap_package(state, package_1.id, package_2.id)
+
+    else:
+        inside_packages = []
+        for package in state.packages:
+            if not package.is_outside():
+                inside_packages.append(package)
+        
+        # Kalau package diluar semua, successor selanjutnya masukin random
+        if len(inside_packages) == 0:
+            package = random.choice(state.packages)
+            x = random.randrange(state.truck.dimension.w)
+            y = random.randrange(state.truck.dimension.l)
+            z = random.randrange(state.truck.dimension.h)
+
+            position = Position(x, y, z)
+            return move_package(state, package.id, position)
+
+        package = random.choice(inside_packages)
+        axis = random.choice(["x", "-x", "y", "-y", "z", "-z"])
+
+        return rotate_package(state, package.id, axis)
+
+def generate_all_successor(state: ProblemState) -> list[ProblemState]:
+    all_successor = []
+
+    # Pindah setiap paket ke setiap koordinat truk
+    for package in state.packages:
+        for z in range(state.truck.dimension.h):
+            for y in range(state.truck.dimension.l):
+                for x in range(state.truck.dimension.w):
+
+                    if package.position is not None:
+                        # Posisi yang sama ga di pindah
+                        if (package.position.x == x and package.position.y == y and package.position.z == z):
+                            continue
+
+                    position = Position(x, y, z)
+                    successor = move_package(state, package.id, position)
+                    all_successor.append(successor)
+
+    # Tukar setiap pasangan package
+    for i in range(len(state.packages)):
+        for j in range(i + 1, len(state.packages)):
+            package_1 = state.packages[i]
+            package_2 = state.packages[j]
+
+            successor = swap_package(state, package_1.id, package_2.id)
+            all_successor.append(successor)
+
+    # Rotate paket di truk
+    for package in state.packages:
+        if package.is_outside():
+            continue # Ga rotate kalau diluar
+
+        for axis in ["x", "-x", "y", "-y", "z", "-z"]:
+            successor = rotate_package(state, package.id, axis)
+            all_successor.append(successor)
+
+    return all_successor
 
 def rotate_package(state: ProblemState, id: str, rotation_axis: Axis) -> ProblemState:
     updated = state.clone()
