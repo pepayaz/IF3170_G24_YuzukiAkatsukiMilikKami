@@ -1,21 +1,27 @@
 from ...utils.action import generate_all_successor, generate_random_successor
 from ...models.problem import Problem, ProblemState
 from ...utils.evaluator import evaluate_state
+from ...utils.initial_state import generate_initial_state
 
 MAX_SIDEWAYS_MOVE = 10
 MAX_RESTART = 10
 MAX_ITERATION = 10
 
 def run_hillclimbing(problem: Problem, variant: str): 
-    # TODO: Inital state
+    initial_state = generate_initial_state(problem)
+
     if variant == "steepest ascent":
-        pass
+        return steepest_ascent(initial_state)
+
     elif variant == "sideways move":
-        pass
+        return sideways_move(initial_state, MAX_SIDEWAYS_MOVE)
+
     elif variant == "random restart":
-        pass
+        return random_restart(initial_state, MAX_RESTART)
+
     elif variant == "stochastic":
-        pass
+        return stochastic(initial_state, MAX_ITERATION)
+    
     else:
         raise RuntimeError(f"Invalid Hill Climbing Variant: {variant}")
 
@@ -109,17 +115,27 @@ def sideways_move(state: ProblemState, max_sideways_move):
         iteration += 1
 
 def random_restart(state: ProblemState, max_restart): 
-    # TODO: Random initial state
-    current: ProblemState = state
+    best_initial = state
+    best_result = steepest_ascent(best_initial)
+    best_value = evaluate_state(best_result["current"])["state_value"]
 
     for _ in range(max_restart):
-        final_state = steepest_ascent(state)
+        restart_state = generate_initial_state(state.problem)
+        restart_result = steepest_ascent(restart_state)
 
-        final_state__value = evaluate_state(final_state)["state_value"]
-        current_value = evaluate_state(current)["state_value"]
+        restart_final = restart_result["current"]
+        restart_value = evaluate_state(restart_final)["state_value"]
 
-        if current_value < final_state:
-            current = final_state
+        if restart_value > best_value:
+            best_initial = restart_state
+            best_result = restart_result
+            best_value = restart_value
+
+    best_result["initial"] = best_initial
+    best_result["restart"] = max_restart
+    best_result["max_restart"] = max_restart
+
+    return best_result
 
 def stochastic(state: ProblemState, max_iteration):
     current: ProblemState = state
@@ -142,4 +158,4 @@ def stochastic(state: ProblemState, max_iteration):
     result["current"] = current
     result["all_states"] = all_states
     result["iteration"] = count_iteration
-    return current
+    return result
