@@ -1,0 +1,162 @@
+{
+  "valid_pair": {
+    "value": 110,
+    "total_weight": 7,
+    "penalty": 0,
+    "state_value": 110,
+    "is_valid": true,
+    "violations": {
+      "violation": 0,
+      "overload": 0,
+      "overlap": 0,
+      "out_of_bounds": 0,
+      "unsupported": 0,
+      "fragile_support": 0
+    },
+    "explanation": "A dan B dimuat tanpa pelanggaran. Optimum valid kasus kecil ini adalah 110."
+  },
+  "empty_truck": {
+    "value": 0,
+    "total_weight": 0,
+    "penalty": 0,
+    "state_value": 0,
+    "is_valid": true,
+    "violations": {
+      "violation": 0,
+      "overload": 0,
+      "overlap": 0,
+      "out_of_bounds": 0,
+      "unsupported": 0,
+      "fragile_support": 0
+    },
+    "explanation": "Seluruh paket belum dimuat; value, berat, dan penalti nol."
+  },
+  "overload": {
+    "value": 110,
+    "total_weight": 7,
+    "penalty": 110,
+    "state_value": 0,
+    "is_valid": false,
+    "violations": {
+      "violation": 1,
+      "overload": 1,
+      "overlap": 0,
+      "out_of_bounds": 0,
+      "unsupported": 0,
+      "fragile_support": 0
+    },
+    "explanation": "Berat 7 melebihi kapasitas 6 sebesar 1. Satu jenis pelanggaran aktif."
+  },
+  "overlap": {
+    "value": 20,
+    "total_weight": 2,
+    "penalty": 120,
+    "state_value": -100,
+    "is_valid": false,
+    "violations": {
+      "violation": 1,
+      "overload": 0,
+      "overlap": 2,
+      "out_of_bounds": 0,
+      "unsupported": 0,
+      "fragile_support": 0
+    },
+    "explanation": "Dua paket beririsan sebanyak 2 sel; satu jenis pelanggaran aktif."
+  },
+  "outside_wall": {
+    "value": 10,
+    "total_weight": 1,
+    "penalty": 120,
+    "state_value": -110,
+    "is_valid": false,
+    "violations": {
+      "violation": 1,
+      "overload": 0,
+      "overlap": 0,
+      "out_of_bounds": 2,
+      "unsupported": 0,
+      "fragile_support": 0
+    },
+    "explanation": "Sebanyak 2 sel paket berada di luar dinding truk."
+  },
+  "floating": {
+    "value": 10,
+    "total_weight": 1,
+    "penalty": 110,
+    "state_value": -100,
+    "is_valid": false,
+    "violations": {
+      "violation": 1,
+      "overload": 0,
+      "overlap": 0,
+      "out_of_bounds": 0,
+      "unsupported": 1,
+      "fragile_support": 0
+    },
+    "explanation": "Alas paket berada pada z=1 tanpa penyangga."
+  },
+  "partial_support": {
+    "value": 20,
+    "total_weight": 2,
+    "penalty": 0,
+    "state_value": 20,
+    "is_valid": true,
+    "violations": {
+      "violation": 0,
+      "overload": 0,
+      "overlap": 0,
+      "out_of_bounds": 0,
+      "unsupported": 0,
+      "fragile_support": 0
+    },
+    "explanation": "Paket atas mendapat dukungan pada sebagian alas; susunan valid."
+  },
+  "fragile_support": {
+    "value": 20,
+    "total_weight": 2,
+    "penalty": 110,
+    "state_value": -90,
+    "is_valid": false,
+    "violations": {
+      "violation": 1,
+      "overload": 0,
+      "overlap": 0,
+      "out_of_bounds": 0,
+      "unsupported": 0,
+      "fragile_support": 1
+    },
+    "explanation": "Ada dukungan geometris, tetapi penyangganya fragile. Unsupported tetap nol."
+  },
+  "edge_only_support": {
+    "value": 20,
+    "total_weight": 2,
+    "penalty": 110,
+    "state_value": -90,
+    "is_valid": false,
+    "violations": {
+      "violation": 1,
+      "overload": 0,
+      "overlap": 0,
+      "out_of_bounds": 0,
+      "unsupported": 1,
+      "fragile_support": 0
+    },
+    "explanation": "Kontak tepi tanpa luas bidang kontak tidak dihitung sebagai dukungan."
+  },
+  "rotated_dimensions": {
+    "value": 10,
+    "total_weight": 1,
+    "penalty": 0,
+    "state_value": 10,
+    "is_valid": true,
+    "violations": {
+      "violation": 0,
+      "overload": 0,
+      "overlap": 0,
+      "out_of_bounds": 0,
+      "unsupported": 0,
+      "fragile_support": 0
+    },
+    "explanation": "Ukuran dan sel paket mengikuti orientasi bertanda dengan posisi sel jangkar."
+  }
+}

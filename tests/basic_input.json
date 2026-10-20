@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "truck": {
+    "dimension": {
+      "w": 4,
+      "l": 3,
+      "h": 2
+    },
+    "max_capacity": 7
+  },
+  "packages": [
+    {
+      "id": "A",
+      "dimension": {
+        "w": 2,
+        "l": 2,
+        "h": 1
+      },
+      "value": 60,
+      "weight": 4,
+      "is_fragile": false,
+      "eta": 1
+    },
+    {
+      "id": "B",
+      "dimension": {
+        "w": 2,
+        "l": 1,
+        "h": 1
+      },
+      "value": 50,
+      "weight": 3,
+      "is_fragile": true,
+      "eta": 2
+    }
+  ],
+  "initial_state": {
+    "A": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "orientation": {
+        "w": "x",
+        "l": "y",
+        "h": "z"
+      }
+    },
+    "B": null
+  }
+}

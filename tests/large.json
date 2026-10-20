@@ -1,0 +1,733 @@
+{
+  "schema_version": 1,
+  "truck": {
+    "dimension": {
+      "w": 14,
+      "l": 12,
+      "h": 10
+    },
+    "max_capacity": 180
+  },
+  "packages": [
+    {
+      "id": "P001",
+      "dimension": {
+        "w": 1,
+        "l": 4,
+        "h": 2
+      },
+      "weight": 9,
+      "value": 11,
+      "is_fragile": false,
+      "eta": 3
+    },
+    {
+      "id": "P002",
+      "dimension": {
+        "w": 3,
+        "l": 1,
+        "h": 2
+      },
+      "weight": 10,
+      "value": 37,
+      "is_fragile": false,
+      "eta": 2
+    },
+    {
+      "id": "P003",
+      "dimension": {
+        "w": 4,
+        "l": 4,
+        "h": 1
+      },
+      "weight": 5,
+      "value": 84,
+      "is_fragile": false,
+      "eta": 1
+    },
+    {
+      "id": "P004",
+      "dimension": {
+        "w": 2,
+        "l": 1,
+        "h": 4
+      },
+      "weight": 5,
+      "value": 15,
+      "is_fragile": false,
+      "eta": 4
+    },
+    {
+      "id": "P005",
+      "dimension": {
+        "w": 3,
+        "l": 3,
+        "h": 4
+      },
+      "weight": 8,
+      "value": 30,
+      "is_fragile": true,
+      "eta": 3
+    },
+    {
+      "id": "P006",
+      "dimension": {
+        "w": 4,
+        "l": 1,
+        "h": 3
+      },
+      "weight": 5,
+      "value": 75,
+      "is_fragile": false,
+      "eta": 2
+    },
+    {
+      "id": "P007",
+      "dimension": {
+        "w": 3,
+        "l": 3,
+        "h": 4
+      },
+      "weight": 8,
+      "value": 27,
+      "is_fragile": false,
+      "eta": 2
+    },
+    {
+      "id": "P008",
+      "dimension": {
+        "w": 4,
+        "l": 4,
+        "h": 3
+      },
+      "weight": 4,
+      "value": 85,
+      "is_fragile": false,
+      "eta": 1
+    },
+    {
+      "id": "P009",
+      "dimension": {
+        "w": 2,
+        "l": 2,
+        "h": 1
+      },
+      "weight": 7,
+      "value": 55,
+      "is_fragile": false,
+      "eta": 7
+    },
+    {
+      "id": "P010",
+      "dimension": {
+        "w": 3,
+        "l": 2,
+        "h": 3
+      },
+      "weight": 8,
+      "value": 37,
+      "is_fragile": false,
+      "eta": 5
+    },
+    {
+      "id": "P011",
+      "dimension": {
+        "w": 4,
+        "l": 2,
+        "h": 2
+      },
+      "weight": 8,
+      "value": 22,
+      "is_fragile": false,
+      "eta": 4
+    },
+    {
+      "id": "P012",
+      "dimension": {
+        "w": 2,
+        "l": 4,
+        "h": 3
+      },
+      "weight": 4,
+      "value": 19,
+      "is_fragile": false,
+      "eta": 3
+    },
+    {
+      "id": "P013",
+      "dimension": {
+        "w": 2,
+        "l": 1,
+        "h": 4
+      },
+      "weight": 10,
+      "value": 41,
+      "is_fragile": false,
+      "eta": 6
+    },
+    {
+      "id": "P014",
+      "dimension": {
+        "w": 3,
+        "l": 2,
+        "h": 3
+      },
+      "weight": 7,
+      "value": 59,
+      "is_fragile": false,
+      "eta": 6
+    },
+    {
+      "id": "P015",
+      "dimension": {
+        "w": 1,
+        "l": 2,
+        "h": 2
+      },
+      "weight": 8,
+      "value": 43,
+      "is_fragile": true,
+      "eta": 6
+    },
+    {
+      "id": "P016",
+      "dimension": {
+        "w": 3,
+        "l": 3,
+        "h": 3
+      },
+      "weight": 1,
+      "value": 29,
+      "is_fragile": false,
+      "eta": 1
+    },
+    {
+      "id": "P017",
+      "dimension": {
+        "w": 2,
+        "l": 2,
+        "h": 3
+      },
+      "weight": 8,
+      "value": 86,
+      "is_fragile": false,
+      "eta": 4
+    },
+    {
+      "id": "P018",
+      "dimension": {
+        "w": 2,
+        "l": 4,
+        "h": 2
+      },
+      "weight": 9,
+      "value": 51,
+      "is_fragile": true,
+      "eta": 3
+    },
+    {
+      "id": "P019",
+      "dimension": {
+        "w": 3,
+        "l": 3,
+        "h": 2
+      },
+      "weight": 1,
+      "value": 76,
+      "is_fragile": false,
+      "eta": 5
+    },
+    {
+      "id": "P020",
+      "dimension": {
+        "w": 3,
+        "l": 1,
+        "h": 3
+      },
+      "weight": 8,
+      "value": 46,
+      "is_fragile": true,
+      "eta": 7
+    },
+    {
+      "id": "P021",
+      "dimension": {
+        "w": 1,
+        "l": 1,
+        "h": 2
+      },
+      "weight": 10,
+      "value": 73,
+      "is_fragile": false,
+      "eta": 4
+    },
+    {
+      "id": "P022",
+      "dimension": {
+        "w": 1,
+        "l": 2,
+        "h": 2
+      },
+      "weight": 2,
+      "value": 55,
+      "is_fragile": false,
+      "eta": 1
+    },
+    {
+      "id": "P023",
+      "dimension": {
+        "w": 1,
+        "l": 4,
+        "h": 3
+      },
+      "weight": 8,
+      "value": 53,
+      "is_fragile": false,
+      "eta": 4
+    },
+    {
+      "id": "P024",
+      "dimension": {
+        "w": 4,
+        "l": 3,
+        "h": 2
+      },
+      "weight": 7,
+      "value": 34,
+      "is_fragile": false,
+      "eta": 2
+    },
+    {
+      "id": "P025",
+      "dimension": {
+        "w": 3,
+        "l": 4,
+        "h": 2
+      },
+      "weight": 7,
+      "value": 61,
+      "is_fragile": false,
+      "eta": 6
+    },
+    {
+      "id": "P026",
+      "dimension": {
+        "w": 2,
+        "l": 1,
+        "h": 2
+      },
+      "weight": 6,
+      "value": 79,
+      "is_fragile": false,
+      "eta": 1
+    },
+    {
+      "id": "P027",
+      "dimension": {
+        "w": 2,
+        "l": 1,
+        "h": 1
+      },
+      "weight": 2,
+      "value": 47,
+      "is_fragile": false,
+      "eta": 6
+    },
+    {
+      "id": "P028",
+      "dimension": {
+        "w": 4,
+        "l": 2,
+        "h": 1
+      },
+      "weight": 7,
+      "value": 87,
+      "is_fragile": false,
+      "eta": 5
+    },
+    {
+      "id": "P029",
+      "dimension": {
+        "w": 4,
+        "l": 4,
+        "h": 2
+      },
+      "weight": 3,
+      "value": 95,
+      "is_fragile": true,
+      "eta": 5
+    },
+    {
+      "id": "P030",
+      "dimension": {
+        "w": 3,
+        "l": 3,
+        "h": 3
+      },
+      "weight": 2,
+      "value": 59,
+      "is_fragile": true,
+      "eta": 1
+    },
+    {
+      "id": "P031",
+      "dimension": {
+        "w": 4,
+        "l": 2,
+        "h": 4
+      },
+      "weight": 2,
+      "value": 15,
+      "is_fragile": false,
+      "eta": 5
+    },
+    {
+      "id": "P032",
+      "dimension": {
+        "w": 3,
+        "l": 3,
+        "h": 2
+      },
+      "weight": 1,
+      "value": 50,
+      "is_fragile": true,
+      "eta": 3
+    },
+    {
+      "id": "P033",
+      "dimension": {
+        "w": 2,
+        "l": 2,
+        "h": 4
+      },
+      "weight": 8,
+      "value": 79,
+      "is_fragile": false,
+      "eta": 2
+    },
+    {
+      "id": "P034",
+      "dimension": {
+        "w": 1,
+        "l": 1,
+        "h": 1
+      },
+      "weight": 9,
+      "value": 88,
+      "is_fragile": false,
+      "eta": 5
+    },
+    {
+      "id": "P035",
+      "dimension": {
+        "w": 3,
+        "l": 1,
+        "h": 1
+      },
+      "weight": 1,
+      "value": 100,
+      "is_fragile": false,
+      "eta": 1
+    },
+    {
+      "id": "P036",
+      "dimension": {
+        "w": 3,
+        "l": 2,
+        "h": 3
+      },
+      "weight": 10,
+      "value": 76,
+      "is_fragile": false,
+      "eta": 1
+    },
+    {
+      "id": "P037",
+      "dimension": {
+        "w": 4,
+        "l": 2,
+        "h": 3
+      },
+      "weight": 1,
+      "value": 28,
+      "is_fragile": false,
+      "eta": 3
+    },
+    {
+      "id": "P038",
+      "dimension": {
+        "w": 3,
+        "l": 2,
+        "h": 4
+      },
+      "weight": 1,
+      "value": 40,
+      "is_fragile": false,
+      "eta": 3
+    },
+    {
+      "id": "P039",
+      "dimension": {
+        "w": 3,
+        "l": 4,
+        "h": 2
+      },
+      "weight": 7,
+      "value": 34,
+      "is_fragile": true,
+      "eta": 5
+    },
+    {
+      "id": "P040",
+      "dimension": {
+        "w": 2,
+        "l": 1,
+        "h": 3
+      },
+      "weight": 1,
+      "value": 72,
+      "is_fragile": true,
+      "eta": 1
+    },
+    {
+      "id": "P041",
+      "dimension": {
+        "w": 1,
+        "l": 3,
+        "h": 3
+      },
+      "weight": 6,
+      "value": 55,
+      "is_fragile": false,
+      "eta": 2
+    },
+    {
+      "id": "P042",
+      "dimension": {
+        "w": 3,
+        "l": 1,
+        "h": 3
+      },
+      "weight": 10,
+      "value": 88,
+      "is_fragile": false,
+      "eta": 7
+    },
+    {
+      "id": "P043",
+      "dimension": {
+        "w": 1,
+        "l": 3,
+        "h": 2
+      },
+      "weight": 9,
+      "value": 24,
+      "is_fragile": false,
+      "eta": 7
+    },
+    {
+      "id": "P044",
+      "dimension": {
+        "w": 3,
+        "l": 1,
+        "h": 4
+      },
+      "weight": 2,
+      "value": 61,
+      "is_fragile": false,
+      "eta": 2
+    },
+    {
+      "id": "P045",
+      "dimension": {
+        "w": 4,
+        "l": 4,
+        "h": 3
+      },
+      "weight": 5,
+      "value": 33,
+      "is_fragile": true,
+      "eta": 2
+    },
+    {
+      "id": "P046",
+      "dimension": {
+        "w": 2,
+        "l": 4,
+        "h": 1
+      },
+      "weight": 9,
+      "value": 84,
+      "is_fragile": false,
+      "eta": 4
+    },
+    {
+      "id": "P047",
+      "dimension": {
+        "w": 1,
+        "l": 2,
+        "h": 4
+      },
+      "weight": 6,
+      "value": 36,
+      "is_fragile": false,
+      "eta": 7
+    },
+    {
+      "id": "P048",
+      "dimension": {
+        "w": 1,
+        "l": 1,
+        "h": 2
+      },
+      "weight": 10,
+      "value": 74,
+      "is_fragile": true,
+      "eta": 6
+    },
+    {
+      "id": "P049",
+      "dimension": {
+        "w": 2,
+        "l": 2,
+        "h": 2
+      },
+      "weight": 6,
+      "value": 18,
+      "is_fragile": true,
+      "eta": 6
+    },
+    {
+      "id": "P050",
+      "dimension": {
+        "w": 1,
+        "l": 2,
+        "h": 1
+      },
+      "weight": 8,
+      "value": 63,
+      "is_fragile": false,
+      "eta": 2
+    },
+    {
+      "id": "P051",
+      "dimension": {
+        "w": 3,
+        "l": 1,
+        "h": 2
+      },
+      "weight": 5,
+      "value": 55,
+      "is_fragile": false,
+      "eta": 4
+    },
+    {
+      "id": "P052",
+      "dimension": {
+        "w": 3,
+        "l": 2,
+        "h": 2
+      },
+      "weight": 10,
+      "value": 12,
+      "is_fragile": false,
+      "eta": 1
+    },
+    {
+      "id": "P053",
+      "dimension": {
+        "w": 2,
+        "l": 1,
+        "h": 1
+      },
+      "weight": 6,
+      "value": 82,
+      "is_fragile": true,
+      "eta": 4
+    },
+    {
+      "id": "P054",
+      "dimension": {
+        "w": 4,
+        "l": 4,
+        "h": 3
+      },
+      "weight": 6,
+      "value": 37,
+      "is_fragile": false,
+      "eta": 5
+    },
+    {
+      "id": "P055",
+      "dimension": {
+        "w": 2,
+        "l": 3,
+        "h": 3
+      },
+      "weight": 7,
+      "value": 100,
+      "is_fragile": true,
+      "eta": 2
+    },
+    {
+      "id": "P056",
+      "dimension": {
+        "w": 2,
+        "l": 3,
+        "h": 3
+      },
+      "weight": 6,
+      "value": 49,
+      "is_fragile": false,
+      "eta": 5
+    },
+    {
+      "id": "P057",
+      "dimension": {
+        "w": 1,
+        "l": 2,
+        "h": 2
+      },
+      "weight": 10,
+      "value": 63,
+      "is_fragile": false,
+      "eta": 5
+    },
+    {
+      "id": "P058",
+      "dimension": {
+        "w": 1,
+        "l": 2,
+        "h": 4
+      },
+      "weight": 5,
+      "value": 71,
+      "is_fragile": false,
+      "eta": 7
+    },
+    {
+      "id": "P059",
+      "dimension": {
+        "w": 3,
+        "l": 4,
+        "h": 4
+      },
+      "weight": 8,
+      "value": 82,
+      "is_fragile": false,
+      "eta": 7
+    },
+    {
+      "id": "P060",
+      "dimension": {
+        "w": 1,
+        "l": 3,
+        "h": 2
+      },
+      "weight": 6,
+      "value": 24,
+      "is_fragile": false,
+      "eta": 4
+    }
+  ]
+}
