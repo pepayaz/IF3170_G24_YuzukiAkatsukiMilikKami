@@ -75,7 +75,7 @@ def visualize_result(result: dict, algorithm: str):
         visualize_stochastic(result)
 
     elif algorithm == "simulated annealing":
-        visualize_simulated_annealing(result) # TODO
+        visualize_simulated_annealing(result)
 
     elif algorithm == "genetic algorithm":
         visualize_genetic_algorithm(result) # TODO
@@ -249,8 +249,48 @@ def visualize_stochastic(result: dict):
     figure.suptitle("Hasil Stochastic Hill Climbing", fontsize=16, fontweight="bold")
     plt.show()
 
-def visualize_simulated_annealing(result: dict): # TODO
-    pass
+def visualize_simulated_annealing(result: dict):
+    initial_state = result["initial"]
+    final_state = result["current"]
+    history = result.get("all_states", [])
+    probability_history = result.get("probability_history", [])
+
+    initial_value = history[0]
+    final_value = history[-1]
+
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
+
+    draw_state(initial_ax, initial_state, "Initial State", initial_value)
+    draw_state(final_ax, final_state, "Final State", final_value)
+
+    graph_ax.plot(history, color="tab:blue", label="Objective value")
+    graph_ax.set(title="Objective dan Probability terhadap Iterasi", xlabel="Iterasi", ylabel="Objective Value")
+    graph_ax.grid(alpha=0.3)
+
+    probability_ax = graph_ax.twinx()
+    probability_ax.plot(range(1, len(probability_history) + 1), probability_history, color="orange", label="Probability")
+    probability_ax.set_ylabel("Probability")
+
+    graph_lines = graph_ax.get_lines() + probability_ax.get_lines()
+    graph_labels = []
+
+    for line in graph_lines:
+        graph_labels.append(line.get_label())
+
+    graph_ax.legend(graph_lines, graph_labels)
+
+    info = {
+        "Algoritma": "Simulated Annealing",
+        "Jumlah iterasi": result.get("iteration", 0),
+        "Durasi": f"{result.get('duration', 0):.4f} detik",
+        "Nilai awal": initial_value,
+        "Nilai akhir": final_value,
+        "Frekuensi stuck": result.get("stuck", 0),
+    }
+
+    draw_information(info_ax, info)
+    figure.suptitle("Hasil Simulated Annealing", fontsize=16, fontweight="bold")
+    plt.show()
 
 def visualize_genetic_algorithm(result: dict): # TODO
     pass
