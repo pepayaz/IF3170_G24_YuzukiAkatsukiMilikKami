@@ -49,7 +49,7 @@ class CaseTests(unittest.TestCase):
         for name in load_expectations():
             with self.subTest(case=name):
                 state = case_state(name)
-                dim = state.truck.dimension
+                dim = state.trucks[0].dimension
                 expected_grid = []
                 for z in range(dim.h):
                     layer = []
@@ -70,7 +70,8 @@ class CaseTests(unittest.TestCase):
                         size = package.dimension
                         self.assertEqual(len(cells), size.w * size.l * size.h)
                         self.assertEqual(state.outside_volume[package.id], len(cells) - inside)
-                self.assertEqual(state.grid, expected_grid)
+                self.assertEqual(len(state.grid), 1)
+                self.assertEqual(state.grid[0], expected_grid)
 
     def test_support_cases_have_distinct_meanings(self):
         partial = evaluate_state(case_state("partial_support"))
@@ -96,7 +97,7 @@ class CaseTests(unittest.TestCase):
             for package in subset:
                 weight += package.weight
                 value += package.value
-            if weight <= state.truck.max_capacity:
+            if weight <= state.trucks[0].max_capacity:
                 best_weight_feasible_value = max(best_weight_feasible_value, value)
         self.assertEqual(best_weight_feasible_value, 110)
         result = evaluate_state(state)
@@ -115,9 +116,10 @@ class DatasetTests(unittest.TestCase):
             with self.subTest(dataset=name):
                 problem = load_problem(DATASET_DIR / (name + ".json"))
                 self.assertEqual(len(problem.packages), count)
-                dim = problem.truck.dimension
+                self.assertEqual(len(problem.trucks), 1)
+                dim = problem.trucks[0].dimension
                 self.assertEqual((dim.w, dim.l, dim.h), dimensions)
-                self.assertEqual(problem.truck.max_capacity, capacity)
+                self.assertEqual(problem.trucks[0].max_capacity, capacity)
 
     def test_dataset_starts_without_loaded_packages(self):
         for name in ("small", "medium", "large"):
@@ -133,7 +135,7 @@ class DatasetTests(unittest.TestCase):
     def test_each_dataset_package_can_fit_individually(self):
         for name in ("small", "medium", "large"):
             problem = load_problem(DATASET_DIR / (name + ".json"))
-            truck = problem.truck.dimension
+            truck = problem.trucks[0].dimension
             truck_sides = sorted((truck.w, truck.l, truck.h))
             for package in problem.packages:
                 with self.subTest(dataset=name, package=package.id):
@@ -141,7 +143,7 @@ class DatasetTests(unittest.TestCase):
                     sides = sorted((dim.w, dim.l, dim.h))
                     for i in range(3):
                         self.assertLessEqual(sides[i], truck_sides[i])
-                    self.assertLessEqual(package.weight, problem.truck.max_capacity)
+                    self.assertLessEqual(package.weight, problem.trucks[0].max_capacity)
 
 
 if __name__ == "__main__":

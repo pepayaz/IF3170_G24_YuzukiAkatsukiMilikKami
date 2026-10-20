@@ -5,17 +5,21 @@ from ..models.package import Package, Orientation, Position, Axis, RotationDirec
 
 import random
 
+def get_random_location(state: ProblemState) -> tuple[Position, int]:
+    truck_idx = random.randrange(len(state.trucks))
+    dimension = state.trucks[truck_idx].dimension
+    x = random.randrange(dimension.w)
+    y = random.randrange(dimension.l)
+    z = random.randrange(dimension.h)
+    return Position(x, y, z), truck_idx
+
 def generate_random_successor(state: ProblemState) -> ProblemState:
     action = random.choice(["move_package", "swap_package", "rotate_package"])
 
     if action == "move_package":
         package = random.choice(state.packages)
-        x = random.randrange(state.truck.dimension.w)
-        y = random.randrange(state.truck.dimension.l)
-        z = random.randrange(state.truck.dimension.h)
-
-        position = Position(x, y, z)
-        return move_package(state, package.id, position)
+        position, truck_idx = get_random_location(state)
+        return move_package(state, package.id, position, truck_idx)
 
     elif action == "swap_package":
         package_1, package_2 = random.sample(state.packages, 2)
@@ -30,12 +34,8 @@ def generate_random_successor(state: ProblemState) -> ProblemState:
         # Kalau package diluar semua, successor selanjutnya masukin random
         if len(inside_packages) == 0:
             package = random.choice(state.packages)
-            x = random.randrange(state.truck.dimension.w)
-            y = random.randrange(state.truck.dimension.l)
-            z = random.randrange(state.truck.dimension.h)
-
-            position = Position(x, y, z)
-            return move_package(state, package.id, position)
+            position, truck_idx = get_random_location(state)
+            return move_package(state, package.id, position, truck_idx)
 
         package = random.choice(inside_packages)
         axis = random.choice(["x", "-x", "y", "-y", "z", "-z"])
@@ -47,18 +47,20 @@ def generate_all_successor(state: ProblemState) -> list[ProblemState]:
 
     # Pindah setiap paket ke setiap koordinat truk
     for package in state.packages:
-        for z in range(state.truck.dimension.h):
-            for y in range(state.truck.dimension.l):
-                for x in range(state.truck.dimension.w):
+        for truck_idx in range(len(state.trucks)):
+            dimension = state.trucks[truck_idx].dimension
+            for z in range(dimension.h):
+                for y in range(dimension.l):
+                    for x in range(dimension.w):
 
-                    if package.position is not None:
-                        # Posisi yang sama ga di pindah
-                        if (package.position.x == x and package.position.y == y and package.position.z == z):
-                            continue
+                        if package.position is not None and package.truck_idx == truck_idx:
+                            # Posisi yang sama ga di pindah
+                            if (package.position.x == x and package.position.y == y and package.position.z == z):
+                                continue
 
-                    position = Position(x, y, z)
-                    successor = move_package(state, package.id, position)
-                    all_successor.append(successor)
+                        position = Position(x, y, z)
+                        successor = move_package(state, package.id, position, truck_idx)
+                        all_successor.append(successor)
 
     # Tukar setiap pasangan package
     for i in range(len(state.packages)):
@@ -97,58 +99,46 @@ def rotate_package(state: ProblemState, id: str, rotation_axis: Axis) -> Problem
     else:
         raise RuntimeError(f"Invalid axis: {axis}")
 
-    _update_grid_rotate(state, updated, id)
+    _update_grid(state, updated, id)
 
     return updated
 
-def _update_grid_rotate(origin: ProblemState, updated: ProblemState, id: str):
-    package = get_package(updated,id)
-    old_cells = get_occupied_cells(get_package(origin, id))
-    new_cells = get_occupied_cells(package)
+def _update_grid(origin: ProblemState, updated: ProblemState, id: str):
+    old_package = get_package(origin, id)
+    package = get_package(updated, id)
 
-    depth = len(updated.grid)
-    height = len(updated.grid[0])
-    width = len(updated.grid[0][0])
+    if old_package.position is not None:
+        _apply_cells(updated, old_package.truck_idx, get_occupied_cells(old_package), package.id, add=False)
 
-    # Hapus data package dari grid lama
-    for x, y, z in old_cells:
+    if package.position is not None:
+        _apply_cells(updated, package.truck_idx, get_occupied_cells(package), package.id, add=True)
+
+def _apply_cells(state: ProblemState, truck_idx: int, cells, package_id: str, add: bool):
+    truck_grid = state.grid[truck_idx]
+    depth = len(truck_grid)
+    height = len(truck_grid[0])
+    width = len(truck_grid[0][0])
+
+    for x, y, z in cells:
         if 0 <= x < width and 0 <= y < height and 0 <= z < depth:
-            updated.grid[z][y][x].discard(package.id)
-
-    # Masukkan data package ke grid baru
-    for x, y, z in new_cells:
-        if 0 <= x < width and 0 <= y < height and 0 <= z < depth:
-            updated.grid[z][y][x].add(package.id)
+            if add:
+                truck_grid[z][y][x].add(package_id)
+            else:
+                truck_grid[z][y][x].discard(package_id)
 
 
-def move_package(state: ProblemState, id: str, target: Position) -> ProblemState:
+def move_package(state: ProblemState, id: str, target: Position, truck_idx: int | None = None) -> ProblemState:
     updated = state.clone()
     package = get_package(updated, id)
 
-    package.move(target)
+    if truck_idx is None:
+        truck_idx = package.truck_idx if package.truck_idx is not None else 0
 
-    _update_grid_move(state, updated, id)
+    package.move(target, truck_idx)
+
+    _update_grid(state, updated, id)
 
     return updated
-
-def _update_grid_move(origin: ProblemState, updated: ProblemState, id: str):
-    package = get_package(updated, id)
-    old_cells = get_occupied_cells(get_package(origin, id))
-    new_cells = get_occupied_cells(package)
-
-    depth = len(updated.grid)
-    height = len(updated.grid[0])
-    width = len(updated.grid[0][0])
-
-    # Hapus data package dari grid lama
-    for x, y, z in old_cells:
-        if 0 <= x < width and 0 <= y < height and 0 <= z < depth:
-            updated.grid[z][y][x].discard(package.id)
-
-    # Masukkan data package ke grid baru
-    for x, y, z in new_cells:
-        if 0 <= x < width and 0 <= y < height and 0 <= z < depth:
-            updated.grid[z][y][x].add(package.id)
 
 
 def swap_package(state: ProblemState, id1: str, id2: str) -> ProblemState:
@@ -156,14 +146,14 @@ def swap_package(state: ProblemState, id1: str, id2: str) -> ProblemState:
     package1 = get_package(updated, id1)
     package2 = get_package(updated, id2)
 
-    pos1 = package1.position
-    pos2 = package2.position
+    pos1, truck1 = package1.position, package1.truck_idx
+    pos2, truck2 = package2.position, package2.truck_idx
 
-    package1.move(pos2)
-    package2.move(pos1)
+    package1.move(pos2, truck2)
+    package2.move(pos1, truck1)
 
-    _update_grid_move(state, updated, id1)
-    _update_grid_move(state, updated, id2)
+    _update_grid(state, updated, id1)
+    _update_grid(state, updated, id2)
 
     return updated
 

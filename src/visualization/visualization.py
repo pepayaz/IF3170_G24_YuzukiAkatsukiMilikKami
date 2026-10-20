@@ -3,28 +3,55 @@ import matplotlib.pyplot as plt
 from ..utils.evaluator import evaluate_state
 from ..utils.initial_state import dimensions_for_orientation
 
-def draw_state(ax, state, title, value, consider_eta: bool = False):
-    # Buat truk (Gambarnya sebagai kotak transparan)
-    truck = state.truck.dimension
-    ax.bar3d(0, 0, 0, truck.w, truck.l, truck.h, color = "lightskyblue", alpha = 0.08, edgecolor = "black")
+TRUCK_GAP = 3
 
-    outside_x = truck.w + 0.5 # Titik awal kotak diluar
+def draw_state(ax, state, title, value, consider_eta: bool = False):
+    # Susun truk secara berjajar pada sumbu x
+    truck_offsets = []
+    next_truck_x = 0
+    max_truck_length = 0
+    max_truck_height = 0
+
+    for index, truck_data in enumerate(state.trucks):
+        truck = truck_data.dimension
+        truck_offsets.append(next_truck_x)
+
+        ax.bar3d(next_truck_x, 0, 0, truck.w, truck.l, truck.h, color="lightskyblue", alpha=0.08, edgecolor="black")
+        ax.text(next_truck_x + truck.w / 2, 0, truck.h + 0.3, f"Truk {index}", ha="center", weight="bold")
+
+        next_truck_x += truck.w + TRUCK_GAP
+        max_truck_length = max(max_truck_length, truck.l)
+        max_truck_height = max(max_truck_height, truck.h)
+
+    trucks_width = next_truck_x - TRUCK_GAP
+
+    # Paket di luar truk disusun dalam beberapa baris di belakang truk
+    outside_x = 0
+    outside_y = max_truck_length + TRUCK_GAP
+    outside_row_length = 0
+
     min_display_x = 0
     min_display_y = 0
     min_display_z = 0
-    max_display_x = truck.w
-    max_display_y = truck.l
-    max_display_z = truck.h
+    max_display_x = trucks_width
+    max_display_y = max_truck_length
+    max_display_z = max_truck_height
 
     # Gambar semua paket
     for index, package in enumerate(state.packages):
         width, length, height = dimensions_for_orientation(package, package.orientation)
         outside = package.position is None
 
-        # Paket luar digambar disamping kanan truk
+        # Paket luar digambar di belakang deretan truk.
         if outside:
-            x, y, z = outside_x, 0, 0
+            if outside_x > 0 and outside_x + width > trucks_width:
+                outside_x = 0
+                outside_y += outside_row_length + 0.25
+                outside_row_length = 0
+
+            x, y, z = outside_x, outside_y, 0
             outside_x += width + 0.25
+            outside_row_length = max(outside_row_length, length)
             
         else:
             offset_x, offset_y, offset_z = package.oriented_offset
@@ -32,7 +59,7 @@ def draw_state(ax, state, title, value, consider_eta: bool = False):
             end_y = package.position.y + offset_y
             end_z = package.position.z + offset_z
 
-            x = min(package.position.x, end_x)
+            x = truck_offsets[package.truck_idx] + min(package.position.x, end_x)
             y = min(package.position.y, end_y)
             z = min(package.position.z, end_z)
 
@@ -44,7 +71,7 @@ def draw_state(ax, state, title, value, consider_eta: bool = False):
         max_display_z = max(max_display_z, z + height)
 
         # Gambar bentuk paket
-        ax.bar3d(x, y, z, width, length, height, color = plt.cm.tab20(index), alpha = 0.45 if outside else 0.7, edgecolor="red" if outside else "black")
+        ax.bar3d(x, y, z, width, length, height, color = plt.cm.tab20(index % 20), alpha = 0.45 if outside else 0.7, edgecolor="red" if outside else "black")
 
         # ID packege di tengah kotak yang di gambar
         ax.text(x + width / 2, y + length / 2, z + height / 2, package.id, ha = "center")
@@ -68,11 +95,12 @@ def draw_state(ax, state, title, value, consider_eta: bool = False):
     ax.set_proj_type("ortho")
     ax.grid(False)
 
-    # Garis koordinat x, y, z di truk
+    # Garis koordinat x, y, z menggunakan ukuran truk pertama.
+    first_truck = state.trucks[0].dimension
     axes = [
-        ((truck.w, 0, 0), "red", "X"),
-        ((0, truck.l, 0), "green", "Y"),
-        ((0, 0, truck.h), "blue", "Z"),
+        ((first_truck.w, 0, 0), "red", "X"),
+        ((0, first_truck.l, 0), "green", "Y"),
+        ((0, 0, first_truck.h), "blue", "Z"),
     ]
 
     for end, color, label in axes:
@@ -84,7 +112,8 @@ def draw_state(ax, state, title, value, consider_eta: bool = False):
         ax.text(end_x, end_y, end_z, f" {label}", color=color, weight="bold")
 
     # Informasi nilai dan pelanggaran pada state
-    evaluation = evaluate_state(state, consider_eta)
+    evaluation = evaluate_state(state)
+    violations = evaluation["violations"]
     valid_text = "Ya"
 
     if evaluation["is_valid"] == False:
@@ -92,12 +121,14 @@ def draw_state(ax, state, title, value, consider_eta: bool = False):
 
     state_info = f"Loaded value: {evaluation['value']}"
     state_info += f"\nValid: {valid_text}"
-    state_info += f"\nOverload: {evaluation['overload']}"
-    state_info += f"\nOverlap: {evaluation['overlap']}"
-    state_info += f"\nOut of bounds: {evaluation['out_of_bounds']}"
-    state_info += f"\nUnsupported: {evaluation['unsupported']}"
-    state_info += f"\nFragile support: {evaluation['fragile_support']}"
-    state_info += f"\nETA value: {evaluation['eta_value']}"
+    state_info += f"\nOverload: {violations['overload']}"
+    state_info += f"\nOverlap: {violations['overlap']}"
+    state_info += f"\nOut of bounds: {violations['out_of_bounds']}"
+    state_info += f"\nUnsupported: {violations['unsupported']}"
+    state_info += f"\nFragile support: {violations['fragile_support']}"
+
+    if "eta_value" in evaluation:
+        state_info += f"\nETA value: {evaluation['eta_value']}"
 
     ax.text2D(0.02, 0.98, state_info, transform=ax.transAxes, va="top", fontsize=8, bbox={"facecolor": "white", "alpha": 0.75})
 

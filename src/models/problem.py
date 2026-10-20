@@ -7,17 +7,20 @@ from .package import Package
 
 @dataclass
 class Problem:
-    truck: Truck
+    trucks: list[Truck]
     packages: list[Package]
 
 @dataclass
 class ProblemState:
     problem: Problem
-    grid: list[list[list[set[str]]]]
+    grid: list[list[list[list[set[str]]]]] # grid[truck_idx][z][y][x]
+
+    def truck_grid(self, truck_idx: int) -> list[list[list[set[str]]]]:
+        return self.grid[truck_idx]
 
     @property
-    def truck(self) -> Truck:
-        return self.problem.truck
+    def trucks(self) -> list[Truck]:
+        return self.problem.trucks
 
     @property
     def packages(self) -> list[Package]:
@@ -52,9 +55,10 @@ class ProblemState:
                 * package.dimension.h
             )
 
-            inside_x = max(0, min(x_max, self.truck.dimension.w - 1) - max(x_min, 0) + 1)
-            inside_y = max(0, min(y_max, self.truck.dimension.l - 1) - max(y_min, 0) + 1)
-            inside_z = max(0, min(z_max, self.truck.dimension.h - 1) - max(z_min, 0) + 1)
+            idx: int = package.truck_idx
+            inside_x = max(0, min(x_max, self.trucks[idx].dimension.w - 1) - max(x_min, 0) + 1)
+            inside_y = max(0, min(y_max, self.trucks[idx].dimension.l - 1) - max(y_min, 0) + 1)
+            inside_z = max(0, min(z_max, self.trucks[idx].dimension.h - 1) - max(z_min, 0) + 1)
 
             inside_volume = inside_x * inside_y * inside_z
 

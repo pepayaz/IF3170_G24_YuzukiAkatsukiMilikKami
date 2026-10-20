@@ -13,6 +13,7 @@ class Package:
     is_fragile: bool
     eta: int
     position: Position | None
+    truck_idx: int | None
     orientation: Orientation
     
     def __init__(self, id: str, dimension: Dimension, value: int,
@@ -25,6 +26,7 @@ class Package:
         self.is_fragile = is_fragile
         self.eta = eta
         self.position = None
+        self.truck_idx = None
         self.orientation = Orientation("x", "y", "z")
     
     @staticmethod
@@ -114,18 +116,24 @@ class Package:
             h=self._rotate_axis(self.orientation.h, "z", direction)
         )
     
-    def move(self, target_position: Position | None):
+    def move(self, target_position: Position | None, truck_idx: int | None = None):
         if isinstance(target_position, Position):
             self.position = Position(
                 target_position.x,
                 target_position.y,
                 target_position.z
             )
+            if isinstance(truck_idx, int):
+                self.truck_idx = truck_idx
         else:
             self.position = None
+            self.truck_idx = None
         
     def is_outside(self):
-        return self.position == None
+        if self.position is not None and self.truck_idx is None:
+            raise RuntimeError("Invalid position, truck_idx not defined")
+        
+        return self.position is None
 
     @property
     def oriented_offset(self):
