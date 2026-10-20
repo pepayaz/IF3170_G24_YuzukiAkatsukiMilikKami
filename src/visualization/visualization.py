@@ -43,8 +43,6 @@ def draw_state(ax, state, title, value):
     )
 
     ax.set_box_aspect((display_width, truck.l, truck.h))
-
-    # Gunakan proyeksi ortografis dan sembunyikan grid bawaan
     ax.set_proj_type("ortho")
     ax.grid(False)
 
@@ -191,7 +189,41 @@ def visualize_result(result: dict, algorithm: str):
         raise RuntimeError(f"Invalid algorithm: {algorithm}")
 
 def visualize_steepest_ascent(result: dict):
-    pass
+    # Get alll the requred data
+    initial_state = result["initial"]
+    final_state = result["current"]
+    history = result.get("all_states", [])
+
+    initial_value = history[0]
+    final_value = history[-1]
+
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
+
+    # Draw initial state dan final state 
+    draw_state(initial_ax, initial_state, "Initial State", initial_value)
+    draw_state(final_ax, final_state, "Final State", final_value)
+
+    graph_ax.plot(history, marker="o")
+
+    # Judul dan nama sumbbu x dan y
+    graph_ax.set_title("Objective Value terhadap Iterasi")
+    graph_ax.set_xlabel("Iterasi")
+    graph_ax.set_ylabel("Objective Value")
+    graph_ax.grid(alpha=0.3)
+
+    # Informasi benchmark algoritma yang ditampilkan
+    info = {
+        "Algoritma": "Steepest Ascent",
+        "Jumlah iterasi": result.get("iteration", 0),
+        "Durasi": f"{result.get('duration', 0):.4f} detik",
+        "Nilai awal": initial_value,
+        "Nilai akhir": final_value,
+    }
+
+    # Hasil
+    draw_information(info_ax, info)
+    figure.suptitle("Hasil Steepest Ascent", fontsize=16, fontweight="bold")
+    plt.show()
 
 def visualize_sideways_move(result: dict):
     pass
