@@ -59,6 +59,12 @@ def evaluate_state(state: ProblemState, consider_eta: bool = False):
         "penalty": total_penalty,
         "state_value": state_value,
         "violations": violations,
+        "overload": -1 * overload_amount * penalty_weights["overload"],
+        "overlap": -1 * overlap_amount * penalty_weights["overlap"],
+        "out_of_bounds": -1 * out_of_bounds_amount * penalty_weights["out_of_bounds"],
+        "unsupported": -1 * unsupported_amount * penalty_weights["unsupported"],
+        "fragile_support": -1 * fragile_support_amount * penalty_weights["fragile_support"],
+        "eta_value": eta_value,
     }
 
     return result
