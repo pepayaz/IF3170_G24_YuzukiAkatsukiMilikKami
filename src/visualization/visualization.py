@@ -265,8 +265,58 @@ def visualize_sideways_move(result: dict):
     plt.show()
 
 def visualize_random_restart(result: dict):
-    pass
+    # Get alll the requred data
+    initial_state = result["initial"]
+    final_state = result["current"]
+    history = result.get("all_states", [])
 
+    initial_value = history[0]
+    final_value = history[-1]
+
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
+
+    # Draw initial state dan final state 
+    draw_state(initial_ax, initial_state, "Initial State", initial_value)
+    draw_state(final_ax, final_state, "Final State", final_value)
+
+    # Nilai Objective untuk setiap restart
+    objective_per_restart = result.get("objective_per_restart", [])
+    for index in range(len(objective_per_restart)):
+        restart_history = objective_per_restart[index]
+        end_iteration = start_iteration + len(restart_history)
+
+        iterations = range(start_iteration, end_iteration)
+        graph_ax.plot(iterations, restart_history, marker="o", color="tab:blue")
+        
+        if index > 0:
+            restart_line = start_iteration - 0.5
+            graph_ax.axvline(restart_line, color="gray", linestyle="--", alpha=0.6)
+            graph_ax.text(restart_line, 0.97, f"Restart {index}", transform=graph_ax.get_xaxis_transform(), ha="right", va="top", rotation=90, fontsize=7, color="gray")
+        
+        start_iteration = end_iteration
+
+        # Judul dan nama sumbbu x dan y
+        graph_ax.set_title("Objective Value terhadap Iterasi")
+        graph_ax.set_xlabel("Iterasi Total")
+        graph_ax.set_ylabel("Objective Value")
+        graph_ax.grid(alpha=0.3)
+
+        # Informasi benchmark algoritma
+        info = {
+            "Algoritma": "Random Restart",
+            "Jumlah iterasi": result.get("iteration", 0),
+            "Durasi": f"{result.get('duration', 0):.4f} detik",
+            "Nilai awal": initial_value,
+            "Nilai akhir": final_value,
+            "Jumlah restart": result.get("restart", 0),
+            "Maximum restart": result.get("max_restart", 0),
+            "Iterasi per restart": result.get("iteration_per_restart", []),
+        }
+
+        draw_information(info_ax, info)
+        figure.suptitle("Hasil Random Restart", fontsize=16, fontweight="bold")
+        plt.show()    
+        
 def visualize_stochastic(result: dict):
     pass
 
