@@ -85,12 +85,8 @@ def visualize_result(result: dict, algorithm: str):
     if algorithm == "Genetic Algorithm":
         history = result.get("max_states", [])
 
-    # Bagi window jadi empat area
-    figure = plt.figure(figsize=(15, 9), constrained_layout=True)
-    initial_ax = figure.add_subplot(221, projection="3d")
-    final_ax = figure.add_subplot(222, projection="3d")
-    graph_ax = figure.add_subplot(223)
-    info_ax = figure.add_subplot(224)
+    # Bagi window menjadi empat area.
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
 
     # Ambil nilai awal dan akhir
     if history:
@@ -167,18 +163,31 @@ def visualize_result(result: dict, algorithm: str):
     elif algorithm == "Genetic Algorithm": # TODO
         info["Jumlah populasi"] = result.get("population_size", 0)
 
+    draw_information(info_ax, info)
+
+    figure.suptitle("Hasil Algoritma", fontsize=16, fontweight="bold")
+    plt.show()
+
+def create_figure():
+    figure = plt.figure(figsize=(15, 9), constrained_layout=True)
+    initial_ax = figure.add_subplot(221, projection="3d")
+    final_ax = figure.add_subplot(222, projection="3d")
+    graph_ax = figure.add_subplot(223)
+    info_ax = figure.add_subplot(224)
+
+    return figure, initial_ax, final_ax, graph_ax, info_ax
+
+
+def draw_information(info_ax, info):
     info_ax.axis("off")
     info_ax.set_title("Benchmark Algoritma")
 
     info_text = ""
+
     for key, value in info.items():
         if info_text != "":
             info_text += "\n"
 
         info_text += f"{key}: {value}"
 
-    # Bechmark untuk algoritma
     info_ax.text(0.05, 0.9, info_text, va="top", fontsize=12)
-
-    figure.suptitle("Hasil Algoritma", fontsize=16, fontweight="bold")
-    plt.show()
