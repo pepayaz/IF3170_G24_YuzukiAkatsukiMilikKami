@@ -1,15 +1,6 @@
 import matplotlib.pyplot as plt
 
-def package_size(package):
-    # Ambil dimensi pakets
-    orientation = package.orientation
-    size = {
-        orientation.w.strip("-"): package.dimension.w,
-        orientation.l.strip("-"): package.dimension.l,
-        orientation.h.strip("-"): package.dimension.h,
-    }
-
-    return size["x"], size["y"], size["z"]
+from ..utils.initial_state import dimensions_for_orientation
 
 def draw_state(ax, state, title, value):
     # Buat truk (Gambarnya sebagai kotak transparan)
@@ -19,7 +10,7 @@ def draw_state(ax, state, title, value):
     outside_x = truck.w + 0.5 # Titik awal kotak diluar
     # Gambar semua paket
     for index, package in enumerate(state.packages):
-        width, length, height = package_size(package)
+        width, length, height = dimensions_for_orientation(package, package.orientation)
         outside = package.position is None
 
         # Paket luar digambar disamping kanan truk
@@ -52,8 +43,6 @@ def draw_state(ax, state, title, value):
     )
 
     ax.set_box_aspect((display_width, truck.l, truck.h))
-
-    # Gunakan proyeksi ortografis dan sembunyikan grid bawaan
     ax.set_proj_type("ortho")
     ax.grid(False)
 
@@ -73,121 +62,314 @@ def draw_state(ax, state, title, value):
         ax.text(end_x, end_y, end_z, f" {label}", color=color, weight="bold")
 
 def visualize_result(result: dict, algorithm: str):
-    algorithms = [
-        "Steepest Ascent",
-        "Sideways Move",
-        "Random Restart",
-        "Stochastic Hill Climbing",
-        "Simulated Annealing",
-        "Genetic Algorithm",
-    ]
+    if algorithm == "steepest ascent":
+        visualize_steepest_ascent(result)
 
-    if algorithm not in algorithms:
+    elif algorithm == "sideways move":
+        visualize_sideways_move(result)
+
+    elif algorithm == "random restart":
+        visualize_random_restart(result)
+
+    elif algorithm == "stochastic":
+        visualize_stochastic(result)
+
+    elif algorithm == "simulated annealing":
+        visualize_simulated_annealing(result)
+
+    elif algorithm == "genetic algorithm":
+        visualize_genetic_algorithm(result)
+
+    else:
         raise RuntimeError(f"Invalid algorithm: {algorithm}")
 
-    # States data
+def visualize_steepest_ascent(result: dict):
+    # Get alll the requred data
     initial_state = result["initial"]
     final_state = result["current"]
     history = result.get("all_states", [])
 
-    # Genetic Algorithm  
-    if algorithm == "Genetic Algorithm":
-        history = result.get("max_states", [])
+    initial_value = history[0]
+    final_value = history[-1]
 
-    # Bagi window jadi empat area
-    figure = plt.figure(figsize=(15, 9), constrained_layout=True)
-    initial_ax = figure.add_subplot(221, projection="3d")
-    final_ax = figure.add_subplot(222, projection="3d")
-    graph_ax = figure.add_subplot(223)
-    info_ax = figure.add_subplot(224)
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
 
-    # Ambil nilai awal dan akhir
-    if history:
-        initial_value = history[0]
-        final_value = history[-1]
-    else:
-        initial_value = None
-        final_value = None
-    
-    # Gambar kondisi paket sebelum dan sesudah pencarian
+    # Draw initial state dan final state 
     draw_state(initial_ax, initial_state, "Initial State", initial_value)
     draw_state(final_ax, final_state, "Final State", final_value)
 
-    # Random Restart = objective untuk setiap restart
-    if algorithm == "Random Restart":
-        graph_ax.set_xlabel("Iterasi Total")
-        objective_per_restart = result.get("objective_per_restart", [])
-        start_iteration = 0
+    graph_ax.plot(history, marker="o")
 
-        for index in range(len(objective_per_restart)):
-            restart_history = objective_per_restart[index]
-            end_iteration = start_iteration + len(restart_history)
-            iterations = range(start_iteration, end_iteration)
-
-            graph_ax.plot(iterations, restart_history, marker="o", color="tab:blue")
-
-            if index > 0:
-                restart_line = start_iteration - 0.5
-                graph_ax.axvline(restart_line, color="gray", linestyle="--", alpha=0.6)
-                graph_ax.text(restart_line, 0.97, f"Restart {index}", transform=graph_ax.get_xaxis_transform(), ha="right", va="top", rotation=90, fontsize=7, color="gray")
-
-            start_iteration = end_iteration
-
-    # Genetic Algorithm menampilkan nilai maksimum dan rata-rata populasi
-    elif algorithm == "Genetic Algorithm": # TODO
-        graph_ax.plot(history, label="Maximum")
-        graph_ax.plot(result.get("average_states", []), label="Average")
-        graph_ax.legend()
-
-    else:
-        graph_ax.plot(history, marker="o", label="Objective value")
-
-    # Simulated Annealing 
-    if algorithm == "Simulated Annealing": # TODO
-        temperature_ax = graph_ax.twinx()
-        temperature_ax.plot(result.get("temperature_history", []), color="orange", label="Temperature")
-        temperature_ax.set_ylabel("Temperature")
-
-    # Atur judul, nama sumbu, dan grid grafik history.
-    graph_ax.set(title="Objective Value terhadap Iterasi", xlabel="Iterasi", ylabel="Objective Value")
+    # Judul dan nama sumbbu x dan y
+    graph_ax.set_title("Objective Value terhadap Iterasi")
+    graph_ax.set_xlabel("Iterasi")
+    graph_ax.set_ylabel("Objective Value")
     graph_ax.grid(alpha=0.3)
 
-    # Informasi Setiap algoritma
+    # Informasi benchmark algoritma yang ditampilkan
     info = {
-        "Algoritma": algorithm,
+        "Algoritma": "Steepest Ascent",
         "Jumlah iterasi": result.get("iteration", 0),
         "Durasi": f"{result.get('duration', 0):.4f} detik",
         "Nilai awal": initial_value,
         "Nilai akhir": final_value,
     }
 
-    if algorithm == "Sideways Move":
-        info["Sideways move"] = result.get("sideways_move", 0)
-        info["Maximum sideways"] = result.get("max_sideways", 0)
+    # Hasil
+    draw_information(info_ax, info)
+    figure.suptitle("Hasil Steepest Ascent", fontsize=16, fontweight="bold")
+    plt.show()
 
-    elif algorithm == "Random Restart": # TODO
-        info["Jumlah restart"] = result.get("restart", 0)
-        info["Maximum restart"] = result.get("max_restart", 0)
-        info["Iterasi per restart"] = result.get("iteration_per_restart", [])
+def visualize_sideways_move(result: dict):
+    # Get alll the requred data
+    initial_state = result["initial"]
+    final_state = result["current"]
+    history = result.get("all_states", [])
 
-    elif algorithm == "Simulated Annealing": # TODO
-        info["Frekuensi stuck"] = result.get("stuck", 0)
+    initial_value = history[0]
+    final_value = history[-1]
 
-    elif algorithm == "Genetic Algorithm": # TODO
-        info["Jumlah populasi"] = result.get("population_size", 0)
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
 
+    # Draw initial state dan final state 
+    draw_state(initial_ax, initial_state, "Initial State", initial_value)
+    draw_state(final_ax, final_state, "Final State", final_value)
+
+    graph_ax.plot(history, marker="o")
+
+    # Judul dan nama sumbbu x dan y
+    graph_ax.set_title("Objective Value terhadap Iterasi")
+    graph_ax.set_xlabel("Iterasi")
+    graph_ax.set_ylabel("Objective Value")
+    graph_ax.grid(alpha=0.3)
+
+    # Informasi benchmark algoritma yang ditampilka
+    info = {
+        "Algoritma": "Sideways Move",
+        "Jumlah iterasi": result.get("iteration", 0),
+        "Durasi": f"{result.get('duration', 0):.4f} detik",
+        "Nilai awal": initial_value,
+        "Nilai akhir": final_value,
+        "Sideways move": result.get("sideways_move", 0),
+        "Maximum sideways": result.get("max_sideways", 0),
+    }
+
+    # Hasil Algoritma
+    draw_information(info_ax, info)
+    figure.suptitle("Hasil Sideways Move", fontsize=16, fontweight="bold")
+    plt.show()
+
+def visualize_random_restart(result: dict):
+    # Get alll the requred data
+    initial_state = result["initial"]
+    final_state = result["current"]
+    history = result.get("all_states", [])
+
+    initial_value = history[0]
+    final_value = history[-1]
+
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
+
+    # Draw initial state dan final state 
+    draw_state(initial_ax, initial_state, "Initial State", initial_value)
+    draw_state(final_ax, final_state, "Final State", final_value)
+
+    # Nilai Objective untuk setiap restart
+    objective_per_restart = result.get("objective_per_restart", [])
+    for index in range(len(objective_per_restart)):
+        restart_history = objective_per_restart[index]
+        end_iteration = start_iteration + len(restart_history)
+
+        iterations = range(start_iteration, end_iteration)
+        graph_ax.plot(iterations, restart_history, marker="o", color="tab:blue")
+        
+        if index > 0:
+            restart_line = start_iteration - 0.5
+            graph_ax.axvline(restart_line, color="gray", linestyle="--", alpha=0.6)
+            graph_ax.text(restart_line, 0.97, f"Restart {index}", transform=graph_ax.get_xaxis_transform(), ha="right", va="top", rotation=90, fontsize=7, color="gray")
+        
+        start_iteration = end_iteration
+
+        # Judul dan nama sumbbu x dan y
+        graph_ax.set_title("Objective Value terhadap Iterasi")
+        graph_ax.set_xlabel("Iterasi Total")
+        graph_ax.set_ylabel("Objective Value")
+        graph_ax.grid(alpha=0.3)
+
+        # Informasi benchmark algoritma
+        info = {
+            "Algoritma": "Random Restart",
+            "Jumlah iterasi": result.get("iteration", 0),
+            "Durasi": f"{result.get('duration', 0):.4f} detik",
+            "Nilai awal": initial_value,
+            "Nilai akhir": final_value,
+            "Jumlah restart": result.get("restart", 0),
+            "Maximum restart": result.get("max_restart", 0),
+            "Iterasi per restart": result.get("iteration_per_restart", []),
+        }
+
+        draw_information(info_ax, info)
+        figure.suptitle("Hasil Random Restart", fontsize=16, fontweight="bold")
+        plt.show()    
+
+def visualize_stochastic(result: dict):
+    # Get alll the requred data
+    initial_state = result["initial"]
+    final_state = result["current"]
+    history = result.get("all_states", [])
+
+    initial_value = history[0]
+    final_value = history[-1]
+
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
+
+    # Draw initial state dan final state 
+    draw_state(initial_ax, initial_state, "Initial State", initial_value)
+    draw_state(final_ax, final_state, "Final State", final_value)
+
+    graph_ax.plot(history, marker="o")
+
+    # Judul dan nama sumbbu x dan y
+    graph_ax.set_title("Objective Value terhadap Iterasi")
+    graph_ax.set_xlabel("Iterasi")
+    graph_ax.set_ylabel("Objective Value")
+    graph_ax.grid(alpha=0.3)
+
+    # Informasi benchmark
+    info = {
+        "Algoritma": "Stochastic Hill Climbing",
+        "Jumlah iterasi": result.get("iteration", 0),
+        "Durasi": f"{result.get('duration', 0):.4f} detik",
+        "Nilai awal": initial_value,
+        "Nilai akhir": final_value,
+    }
+
+    # Hasil
+    draw_information(info_ax, info)
+    figure.suptitle("Hasil Stochastic Hill Climbing", fontsize=16, fontweight="bold")
+    plt.show()
+
+def visualize_simulated_annealing(result: dict):
+    initial_state = result["initial"]
+    final_state = result["current"]
+    history = result.get("all_states", [])
+    probability_history = result.get("probability_history", [])
+
+    initial_value = history[0]
+    final_value = history[-1]
+
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
+
+    draw_state(initial_ax, initial_state, "Initial State", initial_value)
+    draw_state(final_ax, final_state, "Final State", final_value)
+
+    graph_ax.plot(history, color="tab:blue", label="Objective value")
+    graph_ax.set(title="Objective dan Probability terhadap Iterasi", xlabel="Iterasi", ylabel="Objective Value")
+    graph_ax.grid(alpha=0.3)
+
+    probability_ax = graph_ax.twinx()
+    probability_ax.plot(range(1, len(probability_history) + 1), probability_history, color="orange", label="Probability")
+    probability_ax.set_ylabel("Probability")
+
+    graph_lines = graph_ax.get_lines() + probability_ax.get_lines()
+    graph_labels = []
+
+    for line in graph_lines:
+        graph_labels.append(line.get_label())
+
+    graph_ax.legend(graph_lines, graph_labels)
+
+    info = {
+        "Algoritma": "Simulated Annealing",
+        "Jumlah iterasi": result.get("iteration", 0),
+        "Durasi": f"{result.get('duration', 0):.4f} detik",
+        "Nilai awal": initial_value,
+        "Nilai akhir": final_value,
+        "Frekuensi stuck": result.get("stuck", 0),
+    }
+
+    draw_information(info_ax, info)
+    figure.suptitle("Hasil Simulated Annealing", fontsize=16, fontweight="bold")
+    plt.show()
+
+def visualize_genetic_algorithm(result: dict): 
+    # Individu terbaik dari populasi awal
+    initial_individual = result["initial_population"][0]
+
+    for individual in result["initial_population"]:
+        individual_value = individual["evaluation"]["state_value"]
+        initial_value = initial_individual["evaluation"]["state_value"]
+
+        if individual_value > initial_value:
+            initial_individual = individual
+
+    final_individual = result["best_valid"]
+
+    if final_individual is None:
+        final_individual = result["best_individual"]
+
+    # State dan nilai awal serta akhir
+    initial_state = initial_individual["state"]
+    final_state = final_individual["state"]
+    initial_value = initial_individual["evaluation"]["state_value"]
+    final_value = final_individual["evaluation"]["state_value"]
+
+    generations = []
+    maximum = []
+    average = []
+
+    for generation in result["history"]:
+        generations.append(generation["generation"])
+        maximum.append(generation["max_fitness"])
+        average.append(generation["mean_fitness"])
+
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
+
+    draw_state(initial_ax, initial_state, "Best Initial Individual", initial_value)
+    draw_state(final_ax, final_state, "Best Final Individual", final_value)
+
+    graph_ax.plot(generations, maximum, label="Maximum")
+    graph_ax.plot(generations, average, label="Average")
+    graph_ax.set(title="Fitness terhadap Generasi", xlabel="Generasi", ylabel="Fitness")
+    graph_ax.legend()
+    graph_ax.grid(alpha=0.3)
+
+    # Informasi Benchmark algoritma
+    parameters = result["parameters"]
+    info = {
+        "Algoritma": "Genetic Algorithm",
+        "Jumlah generasi": parameters["generation_count"],
+        "Jumlah populasi": parameters["population_size"],
+        "Mutation rate": parameters["mutation_rate"],
+        "Durasi": f"{result['duration_seconds']:.4f} detik",
+        "Nilai awal": initial_value,
+        "Nilai akhir": final_value,
+    }
+
+    # Hasil
+    draw_information(info_ax, info)
+    figure.suptitle("Hasil Genetic Algorithm", fontsize=16, fontweight="bold")
+    plt.show()
+
+def create_figure():
+    figure = plt.figure(figsize=(15, 9), constrained_layout=True)
+    initial_ax = figure.add_subplot(221, projection="3d")
+    final_ax = figure.add_subplot(222, projection="3d")
+    graph_ax = figure.add_subplot(223)
+    info_ax = figure.add_subplot(224)
+
+    return figure, initial_ax, final_ax, graph_ax, info_ax
+
+def draw_information(info_ax, info):
     info_ax.axis("off")
     info_ax.set_title("Benchmark Algoritma")
 
     info_text = ""
+
     for key, value in info.items():
         if info_text != "":
             info_text += "\n"
 
         info_text += f"{key}: {value}"
 
-    # Bechmark untuk algoritma
     info_ax.text(0.05, 0.9, info_text, va="top", fontsize=12)
-
-    figure.suptitle("Hasil Algoritma", fontsize=16, fontweight="bold")
-    plt.show()
