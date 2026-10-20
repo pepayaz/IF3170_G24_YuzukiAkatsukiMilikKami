@@ -9,6 +9,13 @@ def draw_state(ax, state, title, value, consider_eta: bool = False):
     ax.bar3d(0, 0, 0, truck.w, truck.l, truck.h, color = "lightskyblue", alpha = 0.08, edgecolor = "black")
 
     outside_x = truck.w + 0.5 # Titik awal kotak diluar
+    min_display_x = 0
+    min_display_y = 0
+    min_display_z = 0
+    max_display_x = truck.w
+    max_display_y = truck.l
+    max_display_z = truck.h
+
     # Gambar semua paket
     for index, package in enumerate(state.packages):
         width, length, height = dimensions_for_orientation(package, package.orientation)
@@ -20,9 +27,21 @@ def draw_state(ax, state, title, value, consider_eta: bool = False):
             outside_x += width + 0.25
             
         else:
-            x = package.position.x
-            y = package.position.y
-            z = package.position.z
+            offset_x, offset_y, offset_z = package.oriented_offset
+            end_x = package.position.x + offset_x
+            end_y = package.position.y + offset_y
+            end_z = package.position.z + offset_z
+
+            x = min(package.position.x, end_x)
+            y = min(package.position.y, end_y)
+            z = min(package.position.z, end_z)
+
+        min_display_x = min(min_display_x, x)
+        min_display_y = min(min_display_y, y)
+        min_display_z = min(min_display_z, z)
+        max_display_x = max(max_display_x, x + width)
+        max_display_y = max(max_display_y, y + length)
+        max_display_z = max(max_display_z, z + height)
 
         # Gambar bentuk paket
         ax.bar3d(x, y, z, width, length, height, color = plt.cm.tab20(index), alpha = 0.45 if outside else 0.7, edgecolor="red" if outside else "black")
@@ -30,20 +49,22 @@ def draw_state(ax, state, title, value, consider_eta: bool = False):
         # ID packege di tengah kotak yang di gambar
         ax.text(x + width / 2, y + length / 2, z + height / 2, package.id, ha = "center")
 
-    display_width = max(truck.w, outside_x - 0.25)
+    display_width = max_display_x - min_display_x
+    display_length = max_display_y - min_display_y
+    display_height = max_display_z - min_display_z
 
     # Atur batas sumbu, nama sumbu, dan judul state
     ax.set(
-        xlim=(-0.25, display_width + 0.25),
-        ylim=(-0.25, truck.l + 0.25),
-        zlim=(-0.25, truck.h + 0.25),
+        xlim=(min_display_x - 0.25, max_display_x + 0.25),
+        ylim=(min_display_y - 0.25, max_display_y + 0.25),
+        zlim=(min_display_z - 0.25, max_display_z + 0.25),
         xlabel="Width (x)",
         ylabel="Length (y)",
         zlabel="Height (z)",
         title=f"{title}\nObjective value: {value}",
     )
 
-    ax.set_box_aspect((display_width, truck.l, truck.h))
+    ax.set_box_aspect((display_width, display_length, display_height))
     ax.set_proj_type("ortho")
     ax.grid(False)
 
