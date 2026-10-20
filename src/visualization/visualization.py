@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 
+from ..utils.evaluator import evaluate_state
 from ..utils.initial_state import dimensions_for_orientation
 
-def draw_state(ax, state, title, value):
+def draw_state(ax, state, title, value, consider_eta: bool = False):
     # Buat truk (Gambarnya sebagai kotak transparan)
     truck = state.truck.dimension
     ax.bar3d(0, 0, 0, truck.w, truck.l, truck.h, color = "lightskyblue", alpha = 0.08, edgecolor = "black")
@@ -61,29 +62,47 @@ def draw_state(ax, state, title, value):
         ax.quiver(0, 0, 0, end_x, end_y, end_z, color=color, arrow_length_ratio=0.06)
         ax.text(end_x, end_y, end_z, f" {label}", color=color, weight="bold")
 
-def visualize_result(result: dict, algorithm: str):
+    # Informasi nilai dan pelanggaran pada state
+    evaluation = evaluate_state(state, consider_eta)
+    valid_text = "Ya"
+
+    if evaluation["is_valid"] == False:
+        valid_text = "Tidak"
+
+    state_info = f"Loaded value: {evaluation['value']}"
+    state_info += f"\nValid: {valid_text}"
+    state_info += f"\nOverload: {evaluation['overload']}"
+    state_info += f"\nOverlap: {evaluation['overlap']}"
+    state_info += f"\nOut of bounds: {evaluation['out_of_bounds']}"
+    state_info += f"\nUnsupported: {evaluation['unsupported']}"
+    state_info += f"\nFragile support: {evaluation['fragile_support']}"
+    state_info += f"\nETA value: {evaluation['eta_value']}"
+
+    ax.text2D(0.02, 0.98, state_info, transform=ax.transAxes, va="top", fontsize=8, bbox={"facecolor": "white", "alpha": 0.75})
+
+def visualize_result(result: dict, algorithm: str, consider_eta: bool = False):
     if algorithm == "steepest ascent":
-        visualize_steepest_ascent(result)
+        visualize_steepest_ascent(result, consider_eta)
 
     elif algorithm == "sideways move":
-        visualize_sideways_move(result)
+        visualize_sideways_move(result, consider_eta)
 
     elif algorithm == "random restart":
-        visualize_random_restart(result)
+        visualize_random_restart(result, consider_eta)
 
     elif algorithm == "stochastic":
-        visualize_stochastic(result)
+        visualize_stochastic(result, consider_eta)
 
     elif algorithm == "simulated annealing":
-        visualize_simulated_annealing(result)
+        visualize_simulated_annealing(result, consider_eta)
 
     elif algorithm == "genetic algorithm":
-        visualize_genetic_algorithm(result)
+        visualize_genetic_algorithm(result, consider_eta)
 
     else:
         raise RuntimeError(f"Invalid algorithm: {algorithm}")
 
-def visualize_steepest_ascent(result: dict):
+def visualize_steepest_ascent(result: dict, consider_eta: bool = False):
     # Get alll the requred data
     initial_state = result["initial"]
     final_state = result["current"]
@@ -95,8 +114,8 @@ def visualize_steepest_ascent(result: dict):
     figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
 
     # Draw initial state dan final state 
-    draw_state(initial_ax, initial_state, "Initial State", initial_value)
-    draw_state(final_ax, final_state, "Final State", final_value)
+    draw_state(initial_ax, initial_state, "Initial State", initial_value, consider_eta)
+    draw_state(final_ax, final_state, "Final State", final_value, consider_eta)
 
     graph_ax.plot(history, marker="o")
 
@@ -120,7 +139,7 @@ def visualize_steepest_ascent(result: dict):
     figure.suptitle("Hasil Steepest Ascent", fontsize=16, fontweight="bold")
     plt.show()
 
-def visualize_sideways_move(result: dict):
+def visualize_sideways_move(result: dict, consider_eta: bool = False):
     # Get alll the requred data
     initial_state = result["initial"]
     final_state = result["current"]
@@ -132,8 +151,8 @@ def visualize_sideways_move(result: dict):
     figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
 
     # Draw initial state dan final state 
-    draw_state(initial_ax, initial_state, "Initial State", initial_value)
-    draw_state(final_ax, final_state, "Final State", final_value)
+    draw_state(initial_ax, initial_state, "Initial State", initial_value, consider_eta)
+    draw_state(final_ax, final_state, "Final State", final_value, consider_eta)
 
     graph_ax.plot(history, marker="o")
 
@@ -159,7 +178,7 @@ def visualize_sideways_move(result: dict):
     figure.suptitle("Hasil Sideways Move", fontsize=16, fontweight="bold")
     plt.show()
 
-def visualize_random_restart(result: dict):
+def visualize_random_restart(result: dict, consider_eta: bool = False):
     # Get alll the requred data
     initial_state = result["initial"]
     final_state = result["current"]
@@ -171,8 +190,8 @@ def visualize_random_restart(result: dict):
     figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
 
     # Draw initial state dan final state 
-    draw_state(initial_ax, initial_state, "Initial State", initial_value)
-    draw_state(final_ax, final_state, "Final State", final_value)
+    draw_state(initial_ax, initial_state, "Initial State", initial_value, consider_eta)
+    draw_state(final_ax, final_state, "Final State", final_value, consider_eta)
 
     # Nilai Objective untuk setiap restart
     objective_per_restart = result.get("objective_per_restart", [])
@@ -213,7 +232,7 @@ def visualize_random_restart(result: dict):
         figure.suptitle("Hasil Random Restart", fontsize=16, fontweight="bold")
         plt.show()    
 
-def visualize_stochastic(result: dict):
+def visualize_stochastic(result: dict, consider_eta: bool = False):
     # Get alll the requred data
     initial_state = result["initial"]
     final_state = result["current"]
@@ -225,8 +244,8 @@ def visualize_stochastic(result: dict):
     figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
 
     # Draw initial state dan final state 
-    draw_state(initial_ax, initial_state, "Initial State", initial_value)
-    draw_state(final_ax, final_state, "Final State", final_value)
+    draw_state(initial_ax, initial_state, "Initial State", initial_value, consider_eta)
+    draw_state(final_ax, final_state, "Final State", final_value, consider_eta)
 
     graph_ax.plot(history, marker="o")
 
@@ -250,7 +269,7 @@ def visualize_stochastic(result: dict):
     figure.suptitle("Hasil Stochastic Hill Climbing", fontsize=16, fontweight="bold")
     plt.show()
 
-def visualize_simulated_annealing(result: dict):
+def visualize_simulated_annealing(result: dict, consider_eta: bool = False):
     initial_state = result["initial"]
     final_state = result["current"]
     history = result.get("all_states", [])
@@ -261,8 +280,8 @@ def visualize_simulated_annealing(result: dict):
 
     figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
 
-    draw_state(initial_ax, initial_state, "Initial State", initial_value)
-    draw_state(final_ax, final_state, "Final State", final_value)
+    draw_state(initial_ax, initial_state, "Initial State", initial_value, consider_eta)
+    draw_state(final_ax, final_state, "Final State", final_value, consider_eta)
 
     graph_ax.plot(history, color="tab:blue", label="Objective value")
     graph_ax.set(title="Objective dan Probability terhadap Iterasi", xlabel="Iterasi", ylabel="Objective Value")
@@ -293,7 +312,7 @@ def visualize_simulated_annealing(result: dict):
     figure.suptitle("Hasil Simulated Annealing", fontsize=16, fontweight="bold")
     plt.show()
 
-def visualize_genetic_algorithm(result: dict): 
+def visualize_genetic_algorithm(result: dict, consider_eta: bool = False): 
     # Individu terbaik dari populasi awal
     initial_individual = result["initial_population"][0]
 
@@ -326,8 +345,8 @@ def visualize_genetic_algorithm(result: dict):
 
     figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
 
-    draw_state(initial_ax, initial_state, "Best Initial Individual", initial_value)
-    draw_state(final_ax, final_state, "Best Final Individual", final_value)
+    draw_state(initial_ax, initial_state, "Best Initial Individual", initial_value, consider_eta)
+    draw_state(final_ax, final_state, "Best Final Individual", final_value, consider_eta)
 
     graph_ax.plot(generations, maximum, label="Maximum")
     graph_ax.plot(generations, average, label="Average")
