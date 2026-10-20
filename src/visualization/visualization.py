@@ -112,7 +112,7 @@ def draw_state(ax, state, title, value, consider_eta: bool = False):
         ax.text(end_x, end_y, end_z, f" {label}", color=color, weight="bold")
 
     # Informasi nilai dan pelanggaran pada state
-    evaluation = evaluate_state(state)
+    evaluation = evaluate_state(state, consider_eta)
     violations = evaluation["violations"]
     valid_text = "Ya"
 
