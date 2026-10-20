@@ -70,6 +70,21 @@ def main():
         else:
             print("Pilihan algoritma tidak valid.")
 
+    # Pilih penggunaan ETA
+    while True:
+        eta_input = input("Gunakan ETA dalam objective function? (y/n): ").strip().lower()
+
+        if eta_input == "y":
+            consider_eta = True
+            break
+
+        elif eta_input == "n":
+            consider_eta = False
+            break
+
+        else:
+            print("Masukkan y untuk ya atau n untuk tidak")
+
     # Input jumlah iterasi
     while True:
         iteration_input = input("Jumlah iterasi percobaan: ")
@@ -81,6 +96,7 @@ def main():
 
     output_path.mkdir(exist_ok=True)
     algorithm_name = algorithm.replace(" ", "_")
+    eta_name = "eta" if consider_eta else "tanpa_eta"
     original_show = plt.show
     plt.show = lambda: None
 
@@ -90,17 +106,19 @@ def main():
 
         if algorithm == "simulated annealing":
             initial_state = generate_initial_state(problem)
-            result = search_simulated_annealing(initial_state)
+            result = search_simulated_annealing(initial_state, consider_eta)
+        
         elif algorithm == "genetic algorithm":
-            result = run_ga(problem)
+            result = run_ga(problem, consider_eta=consider_eta)
+        
         else:
-            result = run_hillclimbing(problem, algorithm)
+            result = run_hillclimbing(problem, algorithm, consider_eta)
 
         # Output image
-        image_name = f"{input_path.stem}_{algorithm_name}_{iteration}.png"
+        image_name = f"{input_path.stem}_{algorithm_name}_{eta_name}_{iteration}.png"
         image_path = output_path / image_name
 
-        visualize_result(result, algorithm)
+        visualize_result(result, algorithm, consider_eta)
         figure = plt.gcf()
         figure.savefig(image_path)
         plt.close(figure)
