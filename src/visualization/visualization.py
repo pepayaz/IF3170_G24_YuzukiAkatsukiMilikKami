@@ -176,6 +176,7 @@ def visualize_random_restart(result: dict):
 
     # Nilai Objective untuk setiap restart
     objective_per_restart = result.get("objective_per_restart", [])
+    start_iteration = 0
     for index in range(len(objective_per_restart)):
         restart_history = objective_per_restart[index]
         end_iteration = start_iteration + len(restart_history)
