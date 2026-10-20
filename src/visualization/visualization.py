@@ -78,7 +78,7 @@ def visualize_result(result: dict, algorithm: str):
         visualize_simulated_annealing(result)
 
     elif algorithm == "genetic algorithm":
-        visualize_genetic_algorithm(result) # TODO
+        visualize_genetic_algorithm(result)
 
     else:
         raise RuntimeError(f"Invalid algorithm: {algorithm}")
@@ -292,8 +292,64 @@ def visualize_simulated_annealing(result: dict):
     figure.suptitle("Hasil Simulated Annealing", fontsize=16, fontweight="bold")
     plt.show()
 
-def visualize_genetic_algorithm(result: dict): # TODO
-    pass
+def visualize_genetic_algorithm(result: dict): 
+    # Individu terbaik dari populasi awal
+    initial_individual = result["initial_population"][0]
+
+    for individual in result["initial_population"]:
+        individual_value = individual["evaluation"]["state_value"]
+        initial_value = initial_individual["evaluation"]["state_value"]
+
+        if individual_value > initial_value:
+            initial_individual = individual
+
+    final_individual = result["best_valid"]
+
+    if final_individual is None:
+        final_individual = result["best_individual"]
+
+    # State dan nilai awal serta akhir
+    initial_state = initial_individual["state"]
+    final_state = final_individual["state"]
+    initial_value = initial_individual["evaluation"]["state_value"]
+    final_value = final_individual["evaluation"]["state_value"]
+
+    generations = []
+    maximum = []
+    average = []
+
+    for generation in result["history"]:
+        generations.append(generation["generation"])
+        maximum.append(generation["max_fitness"])
+        average.append(generation["mean_fitness"])
+
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
+
+    draw_state(initial_ax, initial_state, "Best Initial Individual", initial_value)
+    draw_state(final_ax, final_state, "Best Final Individual", final_value)
+
+    graph_ax.plot(generations, maximum, label="Maximum")
+    graph_ax.plot(generations, average, label="Average")
+    graph_ax.set(title="Fitness terhadap Generasi", xlabel="Generasi", ylabel="Fitness")
+    graph_ax.legend()
+    graph_ax.grid(alpha=0.3)
+
+    # Informasi Benchmark algoritma
+    parameters = result["parameters"]
+    info = {
+        "Algoritma": "Genetic Algorithm",
+        "Jumlah generasi": parameters["generation_count"],
+        "Jumlah populasi": parameters["population_size"],
+        "Mutation rate": parameters["mutation_rate"],
+        "Durasi": f"{result['duration_seconds']:.4f} detik",
+        "Nilai awal": initial_value,
+        "Nilai akhir": final_value,
+    }
+
+    # Hasil
+    draw_information(info_ax, info)
+    figure.suptitle("Hasil Genetic Algorithm", fontsize=16, fontweight="bold")
+    plt.show()
 
 def create_figure():
     figure = plt.figure(figsize=(15, 9), constrained_layout=True)
