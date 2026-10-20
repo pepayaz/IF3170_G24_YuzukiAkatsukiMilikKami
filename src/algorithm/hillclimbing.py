@@ -7,7 +7,7 @@ from time import perf_counter
 
 MAX_SIDEWAYS_MOVE = 10
 MAX_RESTART = 10
-MAX_ITERATION = 10
+MAX_ITERATION = 100
 
 def run_hillclimbing(problem: Problem, variant: str, consider_eta: bool = False):
     start_time = perf_counter() 
