@@ -6,13 +6,13 @@ from ..models.package import Position, RotationDirection
 from ..utils.initial_state import ROTATIONS, generate_population
 from ..utils.evaluator import evaluate_state
 
-def evaluate_population(population):
+def evaluate_population(population, consider_eta: bool = False):
     evaluated_population = []
 
     for state in population:
         individual = {
             "state": state,
-            "evaluation": evaluate_state(state)
+            "evaluation": evaluate_state(state, consider_eta)
         }
         evaluated_population.append(individual)
 
@@ -194,7 +194,7 @@ def mutate(child_state, mutation_rate, rng):
     return mutated
 
 
-def create_next_generation(evaluated_population, mutation_rate, rng):
+def create_next_generation(evaluated_population, mutation_rate, rng, consider_eta: bool = False):
     if not evaluated_population:
         raise ValueError("Populasi tidak boleh kosong")
 
@@ -208,7 +208,7 @@ def create_next_generation(evaluated_population, mutation_rate, rng):
         child = mutate(child, mutation_rate, rng)
         next_population.append({
             "state": child,
-            "evaluation": evaluate_state(child)
+            "evaluation": evaluate_state(child, consider_eta)
         })
 
     return next_population
@@ -268,7 +268,7 @@ def summarize_generation(evaluated_population, generation, best_valid):
     }
 
 
-def run_ga(problem, population_size=20, generation_count=100, mutation_rate=0.2, seed=None, load_probability=0.5):
+def run_ga(problem, population_size=20, generation_count=100, mutation_rate=0.2, seed=None, load_probability=0.5, consider_eta=False):
     if type(generation_count) is not int or generation_count < 0:
         raise ValueError("Generation count harus berupa bilangan bulat nonnegatif")
     
@@ -281,7 +281,7 @@ def run_ga(problem, population_size=20, generation_count=100, mutation_rate=0.2,
     started = perf_counter()
     population = generate_population(problem, population_size=population_size, seed=seed, load_probability=load_probability)
 
-    evaluated = evaluate_population(population)
+    evaluated = evaluate_population(population, consider_eta)
     initial_population = deepcopy(evaluated)
     best_valid = update_best_valid(None, evaluated)
     history = [summarize_generation(evaluated, 0, best_valid)]
@@ -294,7 +294,7 @@ def run_ga(problem, population_size=20, generation_count=100, mutation_rate=0.2,
     rng = Random(evolution_seed)
 
     for generation in range(1, generation_count + 1):
-        evaluated = create_next_generation(evaluated, mutation_rate, rng)
+        evaluated = create_next_generation(evaluated, mutation_rate, rng, consider_eta)
         best_valid = update_best_valid(best_valid, evaluated)
         history.append(summarize_generation(evaluated, generation, best_valid))
 
@@ -315,6 +315,7 @@ def run_ga(problem, population_size=20, generation_count=100, mutation_rate=0.2,
             "seed": seed,
             "evolution_seed": evolution_seed,
             "load_probability": load_probability,
+            "consider_eta": consider_eta,
             "selection": "roulette",
             "crossover": "one_point",
             "elitism": False,
