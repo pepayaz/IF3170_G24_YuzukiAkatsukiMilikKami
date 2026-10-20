@@ -45,33 +45,27 @@ class CaseTests(unittest.TestCase):
                         weight += package.weight
                 self.assertEqual(weight, target["total_weight"])
 
-    def test_grid_and_outside_volume_match_repo_cells(self):
+    def test_occupied_cells_and_outside_volume_match(self):
         for name in load_expectations():
             with self.subTest(case=name):
                 state = case_state(name)
-                dim = state.trucks[0].dimension
-                expected_grid = []
-                for z in range(dim.h):
-                    layer = []
-                    for y in range(dim.l):
-                        row = []
-                        for x in range(dim.w):
-                            row.append(set())
-                        layer.append(row)
-                    expected_grid.append(layer)
                 for package in state.packages:
                     cells = get_occupied_cells(package)
+                    if package.position is None:
+                        self.assertEqual(cells, set())
+                        continue
+                    dim = state.trucks[package.truck_idx].dimension
                     inside = 0
                     for x, y, z in cells:
                         if 0 <= x < dim.w and 0 <= y < dim.l and 0 <= z < dim.h:
-                            expected_grid[z][y][x].add(package.id)
                             inside += 1
-                    if package.position is not None:
-                        size = package.dimension
-                        self.assertEqual(len(cells), size.w * size.l * size.h)
-                        self.assertEqual(state.outside_volume[package.id], len(cells) - inside)
-                self.assertEqual(len(state.grid), 1)
-                self.assertEqual(state.grid[0], expected_grid)
+                    size = package.dimension
+                    self.assertEqual(len(cells), size.w * size.l * size.h)
+                    self.assertEqual(state.outside_volume[package.id], len(cells) - inside)
+
+    def test_state_has_no_grid(self):
+        state = case_state("valid_pair")
+        self.assertFalse(hasattr(state, "grid"))
 
     def test_support_cases_have_distinct_meanings(self):
         partial = evaluate_state(case_state("partial_support"))

@@ -99,33 +99,7 @@ def rotate_package(state: ProblemState, id: str, rotation_axis: Axis) -> Problem
     else:
         raise RuntimeError(f"Invalid axis: {axis}")
 
-    _update_grid(state, updated, id)
-
     return updated
-
-def _update_grid(origin: ProblemState, updated: ProblemState, id: str):
-    old_package = get_package(origin, id)
-    package = get_package(updated, id)
-
-    if old_package.position is not None:
-        _apply_cells(updated, old_package.truck_idx, get_occupied_cells(old_package), package.id, add=False)
-
-    if package.position is not None:
-        _apply_cells(updated, package.truck_idx, get_occupied_cells(package), package.id, add=True)
-
-def _apply_cells(state: ProblemState, truck_idx: int, cells, package_id: str, add: bool):
-    truck_grid = state.grid[truck_idx]
-    depth = len(truck_grid)
-    height = len(truck_grid[0])
-    width = len(truck_grid[0][0])
-
-    for x, y, z in cells:
-        if 0 <= x < width and 0 <= y < height and 0 <= z < depth:
-            if add:
-                truck_grid[z][y][x].add(package_id)
-            else:
-                truck_grid[z][y][x].discard(package_id)
-
 
 def move_package(state: ProblemState, id: str, target: Position, truck_idx: int | None = None) -> ProblemState:
     updated = state.clone()
@@ -135,8 +109,6 @@ def move_package(state: ProblemState, id: str, target: Position, truck_idx: int 
         truck_idx = package.truck_idx if package.truck_idx is not None else 0
 
     package.move(target, truck_idx)
-
-    _update_grid(state, updated, id)
 
     return updated
 
@@ -151,9 +123,6 @@ def swap_package(state: ProblemState, id1: str, id2: str) -> ProblemState:
 
     package1.move(pos2, truck2)
     package2.move(pos1, truck1)
-
-    _update_grid(state, updated, id1)
-    _update_grid(state, updated, id2)
 
     return updated
 

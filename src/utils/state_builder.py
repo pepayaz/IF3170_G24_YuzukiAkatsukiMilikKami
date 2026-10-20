@@ -67,55 +67,6 @@ def oriented_dim(package):
     return abs(dx) + 1, abs(dy) + 1, abs(dz) + 1
 
 
-def create_truck_grid(dimension):
-    grid = []
-    for z in range(dimension.h):
-        layer = []
-        for y in range(dimension.l):
-            row = []
-            for x in range(dimension.w):
-                row.append(set())
-            layer.append(row)
-        grid.append(layer)
-    return grid
-
-
-def build_state(problem, max_cells=2_000_000):
-    read_integer(max_cells, "max_cells", 1)
+def build_state(problem):
     copied_problem = copy_problem(problem)
-
-    # Batas max_cells berlaku untuk total sel seluruh truk.
-    total_cells = 0
-    for truck in copied_problem.trucks:
-        dimension = truck.dimension
-        total_cells += dimension.w * dimension.l * dimension.h
-    if total_cells > max_cells:
-        raise InputError("Jumlah sel grid melebihi batas max_cells")
-
-    # grid[truck_idx][z][y][x]
-    grid = []
-    for truck in copied_problem.trucks:
-        grid.append(create_truck_grid(truck.dimension))
-
-    for package in copied_problem.packages:
-        if package.position is None:
-            continue
-
-        dimension = copied_problem.trucks[package.truck_idx].dimension
-        truck_grid = grid[package.truck_idx]
-        position = package.position
-        dx, dy, dz = package.oriented_offset
-
-        min_x = min(position.x, position.x + dx)
-        max_x = max(position.x, position.x + dx)
-        min_y = min(position.y, position.y + dy)
-        max_y = max(position.y, position.y + dy)
-        min_z = min(position.z, position.z + dz)
-        max_z = max(position.z, position.z + dz)
-
-        for z in range(max(0, min_z), min(dimension.h, max_z + 1)):
-            for y in range(max(0, min_y), min(dimension.l, max_y + 1)):
-                for x in range(max(0, min_x), min(dimension.w, max_x + 1)):
-                    truck_grid[z][y][x].add(package.id)
-
-    return ProblemState(copied_problem, grid)
+    return ProblemState(copied_problem)

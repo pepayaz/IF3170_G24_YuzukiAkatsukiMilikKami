@@ -13,10 +13,6 @@ class Problem:
 @dataclass
 class ProblemState:
     problem: Problem
-    grid: list[list[list[list[set[str]]]]] # grid[truck_idx][z][y][x]
-
-    def truck_grid(self, truck_idx: int) -> list[list[list[set[str]]]]:
-        return self.grid[truck_idx]
 
     @property
     def trucks(self) -> list[Truck]:
@@ -90,4 +86,3 @@ class ProblemState:
 
         updated = build_state(self.problem)
         self.problem = updated.problem
-        self.grid = updated.grid
