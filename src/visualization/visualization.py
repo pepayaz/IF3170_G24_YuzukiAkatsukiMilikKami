@@ -316,9 +316,43 @@ def visualize_random_restart(result: dict):
         draw_information(info_ax, info)
         figure.suptitle("Hasil Random Restart", fontsize=16, fontweight="bold")
         plt.show()    
-        
+
 def visualize_stochastic(result: dict):
-    pass
+    # Get alll the requred data
+    initial_state = result["initial"]
+    final_state = result["current"]
+    history = result.get("all_states", [])
+
+    initial_value = history[0]
+    final_value = history[-1]
+
+    figure, initial_ax, final_ax, graph_ax, info_ax = create_figure()
+
+    # Draw initial state dan final state 
+    draw_state(initial_ax, initial_state, "Initial State", initial_value)
+    draw_state(final_ax, final_state, "Final State", final_value)
+
+    graph_ax.plot(history, marker="o")
+
+    # Judul dan nama sumbbu x dan y
+    graph_ax.set_title("Objective Value terhadap Iterasi")
+    graph_ax.set_xlabel("Iterasi")
+    graph_ax.set_ylabel("Objective Value")
+    graph_ax.grid(alpha=0.3)
+
+    # Informasi benchmark
+    info = {
+        "Algoritma": "Stochastic Hill Climbing",
+        "Jumlah iterasi": result.get("iteration", 0),
+        "Durasi": f"{result.get('duration', 0):.4f} detik",
+        "Nilai awal": initial_value,
+        "Nilai akhir": final_value,
+    }
+
+    # Hasil
+    draw_information(info_ax, info)
+    figure.suptitle("Hasil Stochastic Hill Climbing", fontsize=16, fontweight="bold")
+    plt.show()
 
 def visualize_simulated_annealing(result: dict):
     pass
