@@ -71,16 +71,18 @@ def evaluate_value(state: ProblemState):
 
 
 def evaluate_load(state: ProblemState):
-    total_weight = 0
+    overloaded_value = 0
+    truck_weights = [0] * len(state.trucks)
 
     for package in state.packages:
         if package.is_outside():
             continue
 
-        total_weight += package.weight
+        truck_weights[package.truck_idx] += package.weight
 
-    max_capacity = state.truck.max_capacity
-    overloaded_value = max(0, total_weight - max_capacity)
+    for index in range(len(state.trucks)):
+        max_capacity = state.trucks[index].max_capacity
+        overloaded_value += max(0, truck_weights[index] - max_capacity)
 
     return overloaded_value
 
@@ -109,6 +111,9 @@ def evaluate_overlap(state: ProblemState):
             p2 = packages[j]
 
             if p2.is_outside(): 
+                continue
+
+            if p2.truck_idx != p1.truck_idx:
                 continue
                 
             p2_size_x, p2_size_y, p2_size_z = p2.oriented_offset
@@ -173,6 +178,9 @@ def evaluate_unsupported(state: ProblemState):
             if support.is_outside():
                 continue
 
+            if support.truck_idx != package.truck_idx:
+                continue
+
             support_dim_x, support_dim_y, support_dim_z = (support.oriented_offset)
             support_top_z = max((support.position.z + support_dim_z), support.position.z)
 
@@ -222,6 +230,9 @@ def evaluate_fragile_support(state: ProblemState):
                 continue
 
             if package.is_outside():
+                continue
+
+            if package.truck_idx != support.truck_idx:
                 continue
             
             dim_x, dim_y, dim_z = (package.oriented_offset)

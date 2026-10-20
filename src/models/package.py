@@ -26,6 +26,7 @@ class Package:
         self.is_fragile = is_fragile
         self.eta = eta
         self.position = None
+        self.truck_idx = None
         self.orientation = Orientation("x", "y", "z")
     
     @staticmethod

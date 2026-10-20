@@ -69,14 +69,25 @@ def generate_initial_state(problem, seed=None, rng=None, load_probability=0.5):
         rng = Random(seed)
 
     candidate = copy_problem(problem)
-    truck_dimension = candidate.truck.dimension
 
     for package in candidate.packages:
         package.position = None
+        package.truck_idx = None
         package.orientation = Orientation("x", "y", "z")
 
         if rng.random() >= load_probability:
             continue
+
+        # Pilih truk acak di antara truk yang dapat memuat paket ini
+        fitting_trucks = []
+        for index in range(len(candidate.trucks)):
+            if fitting_orientations(package, candidate.trucks[index].dimension):
+                fitting_trucks.append(index)
+        if not fitting_trucks:
+            continue
+
+        truck_idx = rng.choice(fitting_trucks)
+        truck_dimension = candidate.trucks[truck_idx].dimension
 
         choices = fitting_orientations(package, truck_dimension)
         if not choices:
@@ -99,6 +110,7 @@ def generate_initial_state(problem, seed=None, rng=None, load_probability=0.5):
             z += abs(offset_z)
 
         package.position = Position(x, y, z)
+        package.truck_idx = truck_idx
 
     return build_state(candidate)
 
