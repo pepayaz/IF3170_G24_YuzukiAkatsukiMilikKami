@@ -141,11 +141,11 @@
     },
     "P03": {
       "position": {"x": 5, "y": 0, "z": 0},
-      "orientation": {"w": "y", "l": "x", "h": "z"}
+      "orientation": {"w": "y", "l": "-x", "h": "z"}
     },
     "P04": {
-      "position": {"x": 6, "y": 0, "z": 0},
-      "orientation": {"w": "y", "l": "x", "h": "z"}
+      "position": {"x": 7, "y": 0, "z": 0},
+      "orientation": {"w": "y", "l": "-x", "h": "z"}
     },
     "P05": {
       "position": {"x": 0, "y": 2, "z": 0},
