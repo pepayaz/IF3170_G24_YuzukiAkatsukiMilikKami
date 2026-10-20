@@ -13,7 +13,7 @@ class Problem:
 @dataclass
 class ProblemState:
     problem: Problem
-    grid: list[list[list[set[str]]]]  # grid[z][y][x]
+    grid: list[list[list[set[str]]]]
 
     @property
     def truck(self) -> Truck:
@@ -33,7 +33,6 @@ class ProblemState:
             
             dx, dy, dz = package.oriented_offset
 
-            # Batas package pada setiap sumbu.
             x1 = package.position.x
             x2 = x1 + dx
 
@@ -70,7 +69,7 @@ class ProblemState:
             if package.is_outside():
                 unloaded_list.add(package.id)
         return unloaded_list
-    
+
     @property
     def loaded_list(self):
         loaded_list = set()
@@ -81,3 +80,10 @@ class ProblemState:
 
     def clone(self):
         return deepcopy(self)
+
+    def rebuild(self):
+        from ..utils.state_builder import build_state
+
+        updated = build_state(self.problem)
+        self.problem = updated.problem
+        self.grid = updated.grid
