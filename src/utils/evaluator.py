@@ -50,7 +50,7 @@ def evaluate_state(state: ProblemState, consider_eta: bool = False):
     
     eta_value = 0
     if consider_eta:
-        eta_value = evaluate_eta(state)
+        eta_value = evaluate_eta(state, penalty_weights["eta"])
         state_value += eta_value
 
     result = {
