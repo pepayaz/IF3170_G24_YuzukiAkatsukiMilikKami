@@ -168,6 +168,46 @@ def visualize_result(result: dict, algorithm: str):
     figure.suptitle("Hasil Algoritma", fontsize=16, fontweight="bold")
     plt.show()
 
+def visualize_result(result: dict, algorithm: str):
+    if algorithm == "steepest ascent":
+        visualize_steepest_ascent(result)
+
+    elif algorithm == "sideways move":
+        visualize_sideways_move(result)
+
+    elif algorithm == "random restart":
+        visualize_random_restart(result)
+
+    elif algorithm == "stochastic":
+        visualize_stochastic(result)
+
+    elif algorithm == "simulated annealing":
+        visualize_simulated_annealing(result)
+
+    elif algorithm == "genetic algorithm":
+        visualize_genetic_algorithm(result)
+
+    else:
+        raise RuntimeError(f"Invalid algorithm: {algorithm}")
+
+def visualize_steepest_ascent(result: dict):
+    pass
+
+def visualize_sideways_move(result: dict):
+    pass
+
+def visualize_random_restart(result: dict):
+    pass
+
+def visualize_stochastic(result: dict):
+    pass
+
+def visualize_simulated_annealing(result: dict):
+    pass
+
+def visualize_genetic_algorithm(result: dict):
+    pass
+
 def create_figure():
     figure = plt.figure(figsize=(15, 9), constrained_layout=True)
     initial_ax = figure.add_subplot(221, projection="3d")
