@@ -11,22 +11,22 @@ from ..utils.initial_state import generate_initial_state
 TEMPERATURE_INITIAL = 1000
 TEMPERATURE_DECREASE = 1
 
-def run_simulated_annealing(problem: Problem, iteration_amount: int):
+def run_simulated_annealing(problem: Problem, iteration_amount: int, consider_eta: bool = False):
     results = []
 
     for i in range(iteration_amount):
         init_state = generate_initial_state(problem)
-        results.append(search_simulated_annealing(init_state))
+        results.append(search_simulated_annealing(init_state, consider_eta))
 
     return results
 
 
-def search_simulated_annealing(state: ProblemState):
+def search_simulated_annealing(state: ProblemState, consider_eta: bool = False):
     start_time = perf_counter()
     initial_state = state
     plot_objective: dict[int, int] = {} # [iteration, state_value]
     plot_probability: dict[int, float] = {} # [iteration, probability]
-    plot_objective[0] = evaluate_state(state)["state_value"]
+    plot_objective[0] = evaluate_state(state, consider_eta)["state_value"]
     stuck = 0
     iteration = 0
     t = TEMPERATURE_INITIAL
@@ -34,8 +34,8 @@ def search_simulated_annealing(state: ProblemState):
     while (t > 0):
         successor = generate_random_successor(state)
 
-        state_value = evaluate_state(state)["state_value"]
-        successor_value = evaluate_state(successor)["state_value"]
+        state_value = evaluate_state(state, consider_eta)["state_value"]
+        successor_value = evaluate_state(successor, consider_eta)["state_value"]
 
         # Tentukan apakah successor akan dipilih
         choose_successor: bool = False
@@ -55,7 +55,7 @@ def search_simulated_annealing(state: ProblemState):
             stuck += 1
 
         iteration += 1
-        plot_objective[iteration] = evaluate_state(state)["state_value"]
+        plot_objective[iteration] = evaluate_state(state, consider_eta)["state_value"]
         plot_probability[iteration] = probability
         t -= TEMPERATURE_DECREASE
 
