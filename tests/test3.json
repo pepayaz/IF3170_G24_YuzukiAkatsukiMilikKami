@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "truck": {
+    "dimension": {
+      "w": 4,
+      "l": 4,
+      "h": 3
+    },
+    "max_capacity": 10
+  },
+  "packages": [
+    {
+      "id": "P1",
+      "dimension": {
+        "w": 2,
+        "l": 2,
+        "h": 1
+      },
+      "weight": 6,
+      "value": 90,
+      "is_fragile": false,
+      "eta": 2
+    },
+    {
+      "id": "P2",
+      "dimension": {
+        "w": 2,
+        "l": 1,
+        "h": 1
+      },
+      "weight": 5,
+      "value": 75,
+      "is_fragile": false,
+      "eta": 3
+    },
+    {
+      "id": "P3",
+      "dimension": {
+        "w": 1,
+        "l": 1,
+        "h": 1
+      },
+      "weight": 1,
+      "value": 40,
+      "is_fragile": true,
+      "eta": 1
+    },
+    {
+      "id": "P4",
+      "dimension": {
+        "w": 1,
+        "l": 1,
+        "h": 2
+      },
+      "weight": 4,
+      "value": 65,
+      "is_fragile": false,
+      "eta": 4
+    },
+    {
+      "id": "P5",
+      "dimension": {
+        "w": 2,
+        "l": 1,
+        "h": 1
+      },
+      "weight": 3,
+      "value": 55,
+      "is_fragile": false,
+      "eta": 2
+    },
+    {
+      "id": "P6",
+      "dimension": {
+        "w": 1,
+        "l": 2,
+        "h": 1
+      },
+      "weight": 2,
+      "value": 35,
+      "is_fragile": true,
+      "eta": 5
+    }
+  ],
+  "initial_state": {
+    "P1": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "orientation": {
+        "w": "x",
+        "l": "y",
+        "h": "z"
+      }
+    },
+    "P2": {
+      "position": {
+        "x": 1,
+        "y": 1,
+        "z": 0
+      },
+      "orientation": {
+        "w": "x",
+        "l": "y",
+        "h": "z"
+      }
+    },
+    "P3": {
+      "position": {
+        "x": 3,
+        "y": 3,
+        "z": 0
+      },
+      "orientation": {
+        "w": "x",
+        "l": "y",
+        "h": "z"
+      }
+    },
+    "P4": {
+      "position": {
+        "x": 3,
+        "y": 3,
+        "z": 1
+      },
+      "orientation": {
+        "w": "x",
+        "l": "y",
+        "h": "z"
+      }
+    },
+    "P5": {
+      "position": {
+        "x": 3,
+        "y": 0,
+        "z": 0
+      },
+      "orientation": {
+        "w": "x",
+        "l": "y",
+        "h": "z"
+      }
+    },
+    "P6": null
+  }
+}
