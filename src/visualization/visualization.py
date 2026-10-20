@@ -1,15 +1,6 @@
 import matplotlib.pyplot as plt
 
-def package_size(package):
-    # Ambil dimensi pakets
-    orientation = package.orientation
-    size = {
-        orientation.w.strip("-"): package.dimension.w,
-        orientation.l.strip("-"): package.dimension.l,
-        orientation.h.strip("-"): package.dimension.h,
-    }
-
-    return size["x"], size["y"], size["z"]
+from ..utils.initial_state import dimensions_for_orientation
 
 def draw_state(ax, state, title, value):
     # Buat truk (Gambarnya sebagai kotak transparan)
@@ -19,7 +10,7 @@ def draw_state(ax, state, title, value):
     outside_x = truck.w + 0.5 # Titik awal kotak diluar
     # Gambar semua paket
     for index, package in enumerate(state.packages):
-        width, length, height = package_size(package)
+        width, length, height = dimensions_for_orientation(package, package.orientation)
         outside = package.position is None
 
         # Paket luar digambar disamping kanan truk
