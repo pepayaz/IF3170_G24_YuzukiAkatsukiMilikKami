@@ -2,7 +2,7 @@ from __future__ import annotations
 from ..models.problem import ProblemState, Truck
 from ..models.package import Package, Orientation, Position, Axis
 
-def evaluate_state(state: ProblemState):
+def evaluate_state(state: ProblemState, consider_eta: bool = False):
     penalty_weights = {
         "violation": 100, #per violation
         "overload": 10, #per weight
@@ -10,6 +10,7 @@ def evaluate_state(state: ProblemState):
         "out_of_bounds": 10, #per block
         "unsupported": 10, #per object
         "fragile_support": 10, #per object
+        "eta": 100, #tambahan nilai value state jika eta 1 hari, berkurang secara eksponensial
     }
 
     overload_amount = evaluate_load(state)
@@ -46,6 +47,11 @@ def evaluate_state(state: ProblemState):
 
     loaded_value = evaluate_value(state)
     state_value = loaded_value - total_penalty
+    
+    eta_value = 0
+    if consider_eta:
+        eta_value = evaluate_eta(state)
+        state_value += eta_value
 
     result = {
         "is_valid": is_valid,
@@ -243,3 +249,15 @@ def evaluate_fragile_support(state: ProblemState):
                 fragile_support_count += 1
 
     return fragile_support_count
+
+
+def evaluate_eta(state: ProblemState, eta_weigth: int):
+    total_value = 0
+
+    for package in state.packages:
+        if package.is_outside():
+            continue
+
+        total_value += eta_weigth // (package.eta**2)
+
+    return total_value
