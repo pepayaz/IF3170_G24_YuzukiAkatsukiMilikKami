@@ -8,8 +8,9 @@ from ..utils.action import generate_random_successor
 from ..utils.evaluator import evaluate_state
 from ..utils.initial_state import generate_initial_state
 
-TEMPERATURE_INITIAL = 1000
-TEMPERATURE_DECREASE = 1
+TEMPERATURE_INITIAL = 100
+TEMPERATURE_MINIMUM = 0.1
+COOLING_RATE = 0.99
 
 def run_simulated_annealing(problem: Problem, iteration_amount: int, consider_eta: bool = False):
     results = []
@@ -26,15 +27,17 @@ def search_simulated_annealing(state: ProblemState, consider_eta: bool = False):
     initial_state = state
     plot_objective: dict[int, int] = {} # [iteration, state_value]
     plot_probability: dict[int, float] = {} # [iteration, probability]
-    plot_objective[0] = evaluate_state(state, consider_eta)["state_value"]
+    state_value = evaluate_state(state, consider_eta)["state_value"]
+    best_state = state
+    best_value = state_value
+    plot_objective[0] = state_value
     stuck = 0
     iteration = 0
     t = TEMPERATURE_INITIAL
 
-    while (t > 0):
+    while t > TEMPERATURE_MINIMUM:
         successor = generate_random_successor(state)
 
-        state_value = evaluate_state(state, consider_eta)["state_value"]
         successor_value = evaluate_state(successor, consider_eta)["state_value"]
 
         # Tentukan apakah successor akan dipilih
@@ -51,18 +54,27 @@ def search_simulated_annealing(state: ProblemState, consider_eta: bool = False):
 
         if choose_successor:
             state = successor
+            state_value = successor_value
+
+            if state_value > best_value:
+                best_state = state
+                best_value = state_value
         else:
             stuck += 1
 
         iteration += 1
-        plot_objective[iteration] = evaluate_state(state, consider_eta)["state_value"]
-        plot_probability[iteration] = probability
-        t -= TEMPERATURE_DECREASE
+        plot_objective[iteration] = state_value
+        if probability == 1:
+            plot_probability[iteration] = 0
+        else:
+            plot_probability[iteration] = probability
+        t *= COOLING_RATE
 
 
     result = {
         "initial": initial_state,
-        "current": state,
+        "current": best_state,
+        "best_value": best_value,
         "all_states": list(plot_objective.values()),
         "probability_history": list(plot_probability.values()),
         "iteration": iteration,
@@ -72,7 +84,7 @@ def search_simulated_annealing(state: ProblemState, consider_eta: bool = False):
 
     return result
 
-def _count_probability(state_value: int, successor_value: int, t: int) -> float:
+def _count_probability(state_value: int, successor_value: int, t: float) -> float:
     d_e = successor_value - state_value
 
     return math.exp(d_e/t)
