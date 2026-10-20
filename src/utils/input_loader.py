@@ -70,11 +70,23 @@ def read_orientation(data, location):
     return Orientation(data["w"], data["l"], data["h"])
 
 
-def read_truck(data):
-    check_fields(data, ("dimension", "max_capacity"), (), "truck")
-    dimension = read_dimension(data["dimension"], "truck.dimension")
-    capacity = read_integer(data["max_capacity"], "truck.max_capacity", 0)
+def read_truck(data, location="truck"):
+    check_fields(data, ("dimension", "max_capacity"), (), location)
+    dimension = read_dimension(data["dimension"], location + ".dimension")
+    capacity = read_integer(data["max_capacity"], location + ".max_capacity", 0)
     return Truck(dimension, capacity)
+
+
+def read_trucks(data):
+    if not isinstance(data, list):
+        raise InputError("trucks: harus berupa array JSON")
+    if len(data) == 0:
+        raise InputError("trucks: minimal terdapat satu truk")
+
+    trucks = []
+    for index in range(len(data)):
+        trucks.append(read_truck(data[index], "trucks[" + str(index) + "]"))
+    return trucks
 
 
 def read_packages(data):
@@ -113,7 +125,20 @@ def read_packages(data):
     return packages
 
 
-def read_placements(data, packages):
+def read_truck_index(placement, trucks, location):
+    # Format lama (satu truk) tidak memiliki field "truck", default ke truk 0.
+    if "truck" not in placement:
+        if len(trucks) == 1:
+            return 0
+        raise InputError(location + ".truck: wajib diisi jika truk lebih dari satu")
+
+    index = read_integer(placement["truck"], location + ".truck", 0)
+    if index >= len(trucks):
+        raise InputError(location + ".truck: indeks truk tidak tersedia: " + str(index))
+    return index
+
+
+def read_placements(data, packages, trucks):
     package_ids = []
     for package in packages:
         package_ids.append(package.id)
@@ -125,7 +150,7 @@ def read_placements(data, packages):
             continue
 
         location = "initial_state." + package.id
-        check_fields(placement, ("position", "orientation"), (), location)
+        check_fields(placement, ("position", "orientation"), ("truck",), location)
         position = placement["position"]
         check_fields(position, ("x", "y", "z"), (), location + ".position")
 
@@ -137,22 +162,31 @@ def read_placements(data, packages):
         package.orientation = read_orientation(
             placement["orientation"], location + ".orientation"
         )
+        package.truck_idx = read_truck_index(placement, trucks, location)
 
 
 def parse_problem(data):
-    required = ("schema_version", "truck", "packages")
-    check_fields(data, required, ("initial_state",), "root")
+    required = ("schema_version", "packages")
+    check_fields(data, required, ("truck", "trucks", "initial_state"), "root")
     version = read_integer(data["schema_version"], "schema_version")
     if version != 1:
         raise InputError("schema_version: hanya versi 1 yang didukung")
 
-    truck = read_truck(data["truck"])
+    if "truck" in data and "trucks" in data:
+        raise InputError("root: gunakan salah satu dari truck atau trucks")
+    if "truck" in data:
+        trucks = [read_truck(data["truck"])]
+    elif "trucks" in data:
+        trucks = read_trucks(data["trucks"])
+    else:
+        raise InputError("root: field tidak ditemukan: truck atau trucks")
+
     packages = read_packages(data["packages"])
 
     if "initial_state" in data:
-        read_placements(data["initial_state"], packages)
+        read_placements(data["initial_state"], packages, trucks)
 
-    return Problem(truck, packages)
+    return Problem(trucks, packages)
 
 
 def unique_fields(pairs):
@@ -185,11 +219,14 @@ def main():
 
     print("Input berhasil dibaca.")
     print("Jumlah paket:", len(problem.packages))
-    print("Kapasitas berat truk:", problem.truck.max_capacity)
+    print("Jumlah truk:", len(problem.trucks))
+    for index in range(len(problem.trucks)):
+        truck = problem.trucks[index]
+        print("Truk", index, "| dimensi:", truck.dimension, "| kapasitas berat:", truck.max_capacity)
     print("Konvensi koordinat: x=lebar, y=panjang, z=tinggi")
 
     for package in problem.packages:
-        print(package.id, "| posisi:", package.position, "| orientasi:", package.orientation)
+        print(package.id, "| truk:", package.truck_idx, "| posisi:", package.position, "| orientasi:", package.orientation)
 
     print("Validitas susunan belum diperiksa; pemeriksaan dilakukan evaluator.")
 

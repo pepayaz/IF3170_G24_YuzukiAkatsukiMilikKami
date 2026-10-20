@@ -79,8 +79,8 @@ def roulette_selection(evaluated_population, rng):
 
 
 def check_parents(state_1, state_2):
-    if state_1.truck != state_2.truck:
-        raise ValueError("Truk kedua induk harus sama")
+    if state_1.trucks != state_2.trucks:
+        raise ValueError("Konfigurasi truk kedua induk harus sama")
     
     if len(state_1.packages) != len(state_2.packages):
         raise ValueError("Jumlah paket kedua induk harus sama")
@@ -118,6 +118,7 @@ def crossover(parent_1, parent_2, rng):
             source = state_2.packages[index]
 
         child.packages[index].position = deepcopy(source.position)
+        child.packages[index].truck_idx = source.truck_idx
         child.packages[index].orientation = deepcopy(source.orientation)
 
     child.rebuild()
@@ -144,13 +145,28 @@ def mutate(child_state, mutation_rate, rng):
 
     if package.position is None:
         package.orientation = deepcopy(rng.choice(ROTATIONS))
-        dimension = mutated.truck.dimension
+        truck_idx = rng.randrange(len(mutated.trucks))
+        dimension = mutated.trucks[truck_idx].dimension
         package.position = Position(rng.randint(0, dimension.w - 1), rng.randint(0, dimension.l - 1), rng.randint(0, dimension.h - 1))
+        package.truck_idx = truck_idx
     
     else:
-        operation = rng.choice(["move", "rotate", "remove"])
+        operations = ["move", "rotate", "remove"]
+        if len(mutated.trucks) > 1:
+            operations.append("transfer")
+        operation = rng.choice(operations)
 
-        if operation == "move":
+        if operation == "transfer":
+            choices = []
+            for index in range(len(mutated.trucks)):
+                if index != package.truck_idx:
+                    choices.append(index)
+            truck_idx = rng.choice(choices)
+            dimension = mutated.trucks[truck_idx].dimension
+            target = Position(rng.randint(0, dimension.w - 1), rng.randint(0, dimension.l - 1), rng.randint(0, dimension.h - 1))
+            package.move(target, truck_idx)
+
+        elif operation == "move":
             axis = rng.choice(["x", "y", "z"])
             distance = rng.choice([-1, 1])
             if axis == "x":
